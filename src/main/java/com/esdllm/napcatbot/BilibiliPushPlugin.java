@@ -2,7 +2,7 @@ package com.esdllm.napcatbot;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.esdllm.bilibiliApi.CardInfo;
-import com.esdllm.bilibiliApi.LiveRoom;
+import com.esdllm.bilibiliApi.Live;
 import com.esdllm.napcatbot.mapper.AdminMapper;
 import com.esdllm.napcatbot.mapper.PushInfoMapper;
 import com.esdllm.napcatbot.pojo.database.Admin;
@@ -12,15 +12,20 @@ import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.core.BotPlugin;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
 import static java.lang.Thread.sleep;
 
 
+@Slf4j
 @Component
 public class BilibiliPushPlugin extends BotPlugin {
 
@@ -31,7 +36,7 @@ public class BilibiliPushPlugin extends BotPlugin {
     private AdminMapper adminMapper;
 
     @Resource
-    private LiveRoom liveRoom;
+    private Live liveRoom;
     @Resource
     private CardInfo cardInfo;
 
@@ -39,22 +44,25 @@ public class BilibiliPushPlugin extends BotPlugin {
     @Override
     public int onAnyMessage(Bot bot, AnyMessageEvent event) {
         if (event.getMessage().startsWith("添加订阅")) {
+            //鉴权
             LambdaQueryWrapper<Admin> adminLambdaQueryWrapper = new LambdaQueryWrapper<>();
             adminLambdaQueryWrapper.eq(Admin::getQqUid, event.getUserId());
             if (!Objects.isNull(event.getGroupId())){
                 adminLambdaQueryWrapper.eq(Admin::getGroupId, event.getGroupId());
             }
             Admin admin = adminMapper.selectOne(adminLambdaQueryWrapper);
-            if (admin==null){
+            if (admin==null&&!Objects.isNull(event.getGroupId())&&!(event.getSender().getRole().equals("owner"))&&!(event.getSender().getRole().equals("admin"))){
                 bot.sendMsg(event,
                         MsgUtils.builder()
                                 .at(event.getUserId())
-                                .text(" 你没有权限使用该功能").build(), false);
+                                .text(" 只有管理员才可以这么做").build(), false);
                 return MESSAGE_BLOCK;
             }
+            //解析房间号
             String msg = event.getMessage();
             String roomIdStr = msg.substring(4).trim();
             if (roomIdStr.isEmpty()) {
+                bot.sendMsg(event, "房间号不能为空", false);
                 return MESSAGE_IGNORE;
             }
             Long roomId;
@@ -63,32 +71,33 @@ public class BilibiliPushPlugin extends BotPlugin {
             } catch (NumberFormatException e) {
                 throw new RuntimeException(e);
             }
+            //判断是否已经订阅过
             PushInfo pushInfoAdd = new PushInfo();
-            pushInfoAdd.setRoomId(roomId);
             LambdaQueryWrapper<PushInfo> queryWrapper = new LambdaQueryWrapper<>();
+            pushInfoAdd.setRoomId(roomId);
             queryWrapper.eq(PushInfo::getRoomId, roomId);
             if (!Objects.isNull(event.getGroupId())){
                 pushInfoAdd.setGroupId(event.getGroupId());
-                queryWrapper.eq(PushInfo::getGroupId, 0L);
+                queryWrapper.eq(PushInfo::getGroupId, event.getGroupId());
             }else {
                 pushInfoAdd.setQqUid(event.getUserId());
                 queryWrapper.eq(PushInfo::getQqUid, event.getUserId());
             }
             PushInfo pushInfo = pushInfoMapper.selectOne(queryWrapper);
             if (pushInfo!=null){
-                bot.sendPrivateMsg(event.getUserId(), "你已经订阅过这个房间了", false);
+                bot.sendMsg(event, "你已经订阅过这个房间了", false);
                 return MESSAGE_IGNORE;
             }
             int rows = pushInfoMapper.insert(pushInfoAdd);
             if (rows>0) {
-                bot.sendPrivateMsg(event.getUserId(),
+                bot.sendMsg(event,
                         MsgUtils.builder()
                                 .at(event.getUserId())
                                 .text("开播提醒 " +
                                         cardInfo.getUserName(liveRoom.getUid(roomId)) +
                                         "添加成功").build(), false);
             }else {
-                bot.sendPrivateMsg(event.getUserId(),
+                bot.sendMsg(event,
                         MsgUtils.builder()
                                 .at(event.getUserId())
                                 .text(
@@ -104,16 +113,17 @@ public class BilibiliPushPlugin extends BotPlugin {
                 adminLambdaQueryWrapper.eq(Admin::getGroupId, event.getGroupId());
             }
             Admin admin = adminMapper.selectOne(adminLambdaQueryWrapper);
-            if (admin==null){
+            if (admin==null&&!Objects.isNull(event.getGroupId())&&!(event.getSender().getRole().equals("owner"))&&!(event.getSender().getRole().equals("admin"))){
                 bot.sendMsg(event,
                         MsgUtils.builder()
                                 .at(event.getUserId())
-                                .text(" 你没有权限使用该功能").build(), false);
+                                .text(" 只有管理员才可以这么做").build(), false);
                 return MESSAGE_BLOCK;
             }
             String msg = event.getMessage();
             String roomIdStr = msg.substring(4).trim();
             if (roomIdStr.isEmpty()) {
+                bot.sendMsg(event, "房间号不能为空", false);
                 return MESSAGE_IGNORE;
             }
             Long roomId;
@@ -128,25 +138,25 @@ public class BilibiliPushPlugin extends BotPlugin {
             queryWrapper.eq(PushInfo::getRoomId, roomId);
             if (!Objects.isNull(event.getGroupId())){
                 pushInfoDel.setGroupId(event.getGroupId());
-                queryWrapper.eq(PushInfo::getGroupId, 0L);
+                queryWrapper.eq(PushInfo::getGroupId, event.getGroupId());
             }else {
                 pushInfoDel.setQqUid(event.getUserId());
                 queryWrapper.eq(PushInfo::getQqUid, event.getUserId());
             }
             PushInfo pushInfo = pushInfoMapper.selectOne(queryWrapper);
             if (pushInfo==null){
-                bot.sendPrivateMsg(event.getUserId(), "你没有订阅过这个房间", false);
+                bot.sendMsg(event, "你没有订阅过这个房间", false);
                 return MESSAGE_IGNORE;
             }
             int rows = pushInfoMapper.delete(queryWrapper);
             if (rows>0) {
-                bot.sendPrivateMsg(event.getUserId(),
+                bot.sendMsg(event,
                         MsgUtils.builder()
                                 .at(event.getUserId())
                                 .text(cardInfo.getUserName(liveRoom.getUid(roomId)) +
                                         "取消开播提醒成功").build(), false);
             }else {
-                bot.sendPrivateMsg(event.getUserId(),
+                bot.sendMsg(event,
                         MsgUtils.builder()
                                 .at(event.getUserId())
                                 .text("取消开播提醒失败").build(), false);
@@ -163,6 +173,14 @@ public class BilibiliPushPlugin extends BotPlugin {
         for (PushInfo pushInfo : pushInfosList) {
             if (liveRoom.getLiveStatus(pushInfo.getRoomId())!=pushInfo.getLiveStatus()) {
                 if (pushInfo.getLiveStatus()==0) {
+                    Date liveTime = null;
+                    SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    try {
+                        liveTime=formatter.parse(liveRoom.getLiveTime(pushInfo.getRoomId()));
+                    } catch (ParseException e) {
+                        log.info("解析开播时间失败");
+                    }
+                    pushInfo.setLiveTime(liveTime);
                     if (pushInfo.getAtAll() == 1){
                     sendMsg = MsgUtils.builder().atAll()
                             .text(cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 开播了"+
@@ -199,8 +217,15 @@ public class BilibiliPushPlugin extends BotPlugin {
                     }
                     pushInfo.setLiveStatus(1);
                 }else {
+                    Date now = new Date();
+                    long between = now.getTime() - pushInfo.getLiveTime().getTime();
+                    long hour = (between / (60 * 60 * 1000));
+                    long minute = ((between / (60 * 1000)) % 60);
+                    long second = ((between / 1000) % 60);
+                    String time = hour==0?(minute==0?second+"秒":minute+"分"+second+"秒"):(hour+"小时"+minute+"分"+second+"秒");
                     sendMsg = MsgUtils.builder()
-                           .text(cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 下播了")
+                           .text(cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 下播了"+
+                                   "\n直播时长："+time)
                            .build();
                     pushInfo.setLiveStatus(0);
                 }
@@ -219,14 +244,18 @@ public class BilibiliPushPlugin extends BotPlugin {
     }
     public void onTimer(Bot bot) throws IOException, InterruptedException {
         while (true) {
-            int i;
+            int i=0;
 
-            i = LivePush(bot);
+            try {
+                i = LivePush(bot);
+            } catch (IOException e) {
+                log.info(e.getMessage());
+            }
 
             if (i != 0) {
                 break;
             }
-            sleep(10000);
+            sleep(1000);
         }
     }
 

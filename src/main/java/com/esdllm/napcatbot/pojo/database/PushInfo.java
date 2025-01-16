@@ -68,6 +68,10 @@ public class PushInfo implements Serializable {
      * 直播间状态，0-未开播，1-直播中，2-轮播中
      */
     private Integer liveStatus;
+    /**
+     * 开播时间
+     */
+    private Date liveTime;
 
     @Serial
     @TableField(exist = false)

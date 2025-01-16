@@ -2,12 +2,7 @@ package com.esdllm.bilibiliApi;
 
 
 import com.esdllm.exception.BilibiliException;
-import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.jupiter.api.Test;
 
 
@@ -18,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 // 测试LiveRoom类的单元测试
 public class LiveRoomTest {
 
-    LiveRoom liveRoom = new LiveRoom();
+    Live liveRoom = new Live();
 
     // 测试正常情况
     @Test
@@ -79,24 +74,31 @@ public class LiveRoomTest {
     }
     @Test
     public void httpTest() throws IOException {
-        String url = "https://b23.tv/gtMIEL7";
+        String url = "https://b23.tv/hw4u0yJ";
 //        CloseableHttpResponse response = ApiBase.getCloseableHttpResponse(url);
 //        HttpEntity entity = response.getEntity();
 //        //获取响应头信息
 //        System.out.println(response.getStatusLine().getStatusCode());
 //        System.out.println(response.getStatusLine().getReasonPhrase());
         //获取响应内容
-        HttpClient client = HttpClientBuilder.create().disableRedirectHandling().build();
-        HttpResponse response = client.execute(new HttpGet(url));
+        HttpResponse response = ApiBase.getHttpResponseNotRedirect(url);
         String location = response.getHeaders("location")[0].getValue();
+        System.out.println("location = " + location);
         String[] split = location.split("/");
         for (String s : split) {
             System.out.println(s);
         }
+        System.out.println("split[split.length-2] = " + split[split.length - 2]);
         int indexOf = split[split.length - 1].indexOf("?");
         String BvId = split[split.length-1].substring(0, indexOf);
         System.out.println(BvId);
 
 
+    }
+    @Test
+    public void testGetLive_time(){
+        Long roomId = 1937838858L;
+        String liveTime = liveRoom.getLiveTime(roomId);
+        System.out.println(liveTime);
     }
 }

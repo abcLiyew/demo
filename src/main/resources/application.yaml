@@ -1,6 +1,6 @@
 # 该配置为反向连接示例
 server:
-  port: 8080
+  port: 12345
 
 shiro:
   ws:
@@ -9,18 +9,19 @@ shiro:
       url: "/ws/demo"
     client:
       enable: true
-      url: "ws://localhost:3001"
+      url: "ws://127.0.0.1:3001"
 
   plugin-list:
     - com.esdllm.napcatbot.MenuPlugin
     - com.esdllm.napcatbot.SignPlugin
     - com.esdllm.napcatbot.BilibiliPushPlugin
+    - com.esdllm.napcatbot.BilibiliAnalysisPlugin
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql:///napcatbot
+    url: jdbc:mysql://rm-wz9g81gr0r33m2h59oo.mysql.rds.aliyuncs.com/napcatbot
     username: root
-    password:
+    password: Aa152773652
     driver-class-name: com.mysql.cj.jdbc.Driver
 
 mybatis-plus:
@@ -33,3 +34,9 @@ mybatis-plus:
       table-prefix:  # 设置表的前缀
   configuration:
     map-underscore-to-camel-case: true #开启驼峰命名
+
+myConfig:
+  bot:
+    qq: 123456789
+    doubao:
+      ARK_API_KEY: ""
