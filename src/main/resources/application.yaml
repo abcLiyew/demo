@@ -19,10 +19,12 @@ shiro:
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://rm-wz9g81gr0r33m2h59oo.mysql.rds.aliyuncs.com/napcatbot
+    url:
     username: root
     password: Aa152773652
     driver-class-name: com.mysql.cj.jdbc.Driver
+  config:
+    location: classpath:./config.yaml
 
 mybatis-plus:
   type-aliases-package: com.esdllm.model
@@ -37,6 +39,7 @@ mybatis-plus:
 
 myConfig:
   bot:
-    qq: 123456789
+    qq:
     doubao:
-      ARK_API_KEY: ""
+      ARK_API_KEY:
+      ARK_API_ID:

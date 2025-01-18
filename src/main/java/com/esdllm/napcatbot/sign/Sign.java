@@ -36,7 +36,7 @@ public class Sign {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         String todayDate = sdf.format(currenDate);
         String updateDate = sdf.format(updateTime);
-        if (updateDate.equals(todayDate)) {
+        if (updateDate.equals(todayDate)&&signInRecords.getEmpirical()!=0) {
             SignInRecordsResp resp = buildResp(signInRecords);
             resp.setRetCode(1);
             resp.setRetMsg(" 签到失败");
@@ -115,5 +115,15 @@ public class Sign {
         }else {
             return 0.0;
         }
+    }
+    public Integer getUid(Long userId,Long groupId){
+        LambdaQueryWrapper<SignInRecords> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(SignInRecords::getQqUid,userId);
+        if (Objects.isNull(groupId)){
+            queryWrapper.isNull(SignInRecords::getGroupId);
+        }else {
+            queryWrapper.eq(SignInRecords::getGroupId,groupId);
+        }
+        return signInRecordsMapper.selectOne(queryWrapper).getSid();
     }
 }

@@ -1,5 +1,6 @@
 package com.esdllm;
 
+import com.esdllm.napcatbot.AiChatPlugin;
 import com.esdllm.napcatbot.BilibiliPushPlugin;
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.core.BotContainer;
@@ -18,6 +19,9 @@ import static java.lang.Thread.sleep;
 @Service
 public class MyAsyncService {
 
+    @Resource
+    private AiChatPlugin aiChatPlugin;
+
     @Value("${myConfig.bot.qq}")
     private  Long qq;
     @Resource
@@ -30,6 +34,10 @@ public class MyAsyncService {
         sleep(1000);
         Bot bot = botContainer.robots.get(qq);
         bilibiliPushPlugin.onTimer(bot);
+    }
+    @Scheduled(cron = "0 30 * * * *")
+    public void clearChatList(){
+        aiChatPlugin.chatMessages.clear();
     }
     /*@Scheduled(cron = "55 59 23 * * *")
     public void groupSign(){
