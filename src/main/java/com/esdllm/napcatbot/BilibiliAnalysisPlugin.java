@@ -70,6 +70,19 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
             }
 
         }
+        for (String s : strArr){
+            int i = s.indexOf("BV");
+            int j = s.indexOf("av");
+            if (i!=-1) {
+                String bvid = s.substring(i,i+12);
+                try {
+                    VideoInfo info = bilibiliClient.getVideoInfo(bvid);
+                    return sendVideoMsg(bot, event, info);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
         if (url== null) {
             return MESSAGE_IGNORE;
         }

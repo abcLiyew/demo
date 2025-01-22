@@ -41,9 +41,9 @@ public class SignPlugin extends BotPlugin {
         msg = msg.replaceAll("\\[CQ:[^]]*]","");
         msg = msg.trim();
 
-        if("今日老婆".equals(msg)){
+       /* if("今日老婆".equals(msg)){
             return todayWife(bot,event);
-        }
+        }*/
         //今日运势
         if ("今日运势".equals(msg)){
             return todayFortune(bot,event);
@@ -173,8 +173,8 @@ public class SignPlugin extends BotPlugin {
         // 计算随机数
         Random random = new Random(timeStamp);
         int fortune = 0;
-        for (int i = 0; i<signInRecords.getSid()%100; i++){
-            if (i == signInRecords.getSid()%100-1){
+        for (int i = 0; i<signInRecords.getSid()%200; i++){
+            if (i == signInRecords.getSid()%200-1){
                 fortune = random.nextInt(100);
             }
             random.nextInt(100);

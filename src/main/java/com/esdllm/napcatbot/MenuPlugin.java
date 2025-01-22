@@ -23,6 +23,7 @@ public class MenuPlugin extends BotPlugin {
                     签到：签到领取经验值
                     查询：查询签到情况
                     今日运势：获取每日运势
+                    今日老婆：获取每日群友老婆
                     
                     菜单：
                     功能|功能菜单|菜单|菜单列表|功能列表|help：查询功能菜单

@@ -124,6 +124,15 @@ public class Sign {
         }else {
             queryWrapper.eq(SignInRecords::getGroupId,groupId);
         }
-        return signInRecordsMapper.selectOne(queryWrapper).getSid();
+        SignInRecords signInRecords = signInRecordsMapper.selectOne(queryWrapper);
+        if (signInRecords == null){
+            SignInRecords addSignInRecords = new SignInRecords();
+            addSignInRecords.setQqUid(userId);
+            addSignInRecords.setGroupId(groupId);
+            signInRecordsMapper.insert(addSignInRecords);
+            return addSignInRecords.getSid();
+        }else {
+            return signInRecords.getSid();
+        }
     }
 }
