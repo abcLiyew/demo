@@ -13,6 +13,7 @@ import com.mikuac.shiro.core.BotPlugin;
 import com.mikuac.shiro.dto.action.common.ActionList;
 import com.mikuac.shiro.dto.action.response.GroupMemberInfoResp;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
+import com.mikuac.shiro.dto.event.notice.GroupIncreaseNoticeEvent;
 import com.mikuac.shiro.enums.AtEnum;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Component;
@@ -243,4 +244,16 @@ public class SignPlugin extends BotPlugin {
     public String getQQAvatar(Long qq) {
         return String.format("http://q1.qlogo.cn/g?b=qq&nk=%s&s=640",qq);
     }
+    @Override
+    @MessageHandlerFilter(groups = {679079419L})
+    public int onGroupIncreaseNotice(Bot bot, GroupIncreaseNoticeEvent event) {
+        // 构建消息
+        String sendMsg = MsgUtils.builder().at(event.getUserId()).text(
+                "\n欢迎新成员加入小雨绒的粉丝群！从此我们就是一家人了。新朋友进群先看下群规哦~"
+                ).build();
+        // 发送消息
+        bot.sendGroupMsg(event.getGroupId(),sendMsg,false);
+        return MESSAGE_IGNORE;
+    }
+
 }

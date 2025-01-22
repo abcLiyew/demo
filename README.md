@@ -175,5 +175,5 @@ Successfully connected
 
 linux 后台运行命令：
 ```bash
-nohup java -jar target/napcatbot-0.0.1-SNAPSHOT.jar > log.txt 2>&1 &
+nohup java -jar target/napcatbot-1.0.2-SNAPSHOT.jar > log.txt 2>&1 &
 ```
