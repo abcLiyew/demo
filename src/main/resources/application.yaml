@@ -1,5 +1,6 @@
+# 该配置为反向连接示例
 server:
-  port: 12345 #自行修改端口号
+  port: 12345
 
 shiro:
   ws:
@@ -18,10 +19,11 @@ shiro:
 spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource
-    url: jdbc:mysql://localhost:3306/napcatbot #数据库连接地址，本机为localhost，请自行修改数据库名
-    username: root #数据库用户名，请自行修改
-    password: root #数据库密码，请自行修改
+    url: jdbc:mysql:///napcatbot
+    username: root
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
+
 mybatis-plus:
   type-aliases-package: com.esdllm.model
   global-config:
@@ -35,7 +37,9 @@ mybatis-plus:
 
 myConfig:
   bot:
-    qq: 123456789 # 改成你自己的机器人QQ号
-    doubao:
-      ARK_API_KEY: "your-ark-api-key" # 豆包的 ARK API KEY，请自行改成你的 ARK API KEY
-      ARK_API_ID: "your-ark-api-id" # 豆包的 ARK API ID，请自行改成你的 ARK API ID
+    qq:
+    aiChat:
+      token: ""
+      model_id: ""
+      base_url: ""
+      max_tokens: 256

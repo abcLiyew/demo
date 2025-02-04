@@ -5,6 +5,7 @@ import com.esdllm.napcatbot.BilibiliPushPlugin;
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.core.BotContainer;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,10 +18,8 @@ import java.util.Date;
 import static java.lang.Thread.sleep;
 
 @Service
+@Slf4j
 public class MyAsyncService {
-
-    @Resource
-    private AiChatPlugin aiChatPlugin;
 
     @Value("${myConfig.bot.qq}")
     private  Long qq;
@@ -28,16 +27,23 @@ public class MyAsyncService {
     private BilibiliPushPlugin bilibiliPushPlugin;
     @Resource
     private BotContainer botContainer;
+    @Resource
+    private AiChatPlugin aiChatPlugin;
     @Async
     public void asyncMethod() throws IOException, InterruptedException {
         // 在这里编写你的异步方法逻辑
-        sleep(1000);
-        Bot bot = botContainer.robots.get(qq);
-        bilibiliPushPlugin.onTimer(bot);
+        try {
+            sleep(1000);
+            Bot bot = botContainer.robots.get(qq);
+            bilibiliPushPlugin.onTimer(bot);
+        } catch (InterruptedException e) {
+            log.error("Async method failed", e);
+        }
     }
     @Scheduled(cron = "0 30 * * * *")
     public void clearChatList(){
-        aiChatPlugin.chatMessages.clear();
+        aiChatPlugin.clear();
+        aiChatPlugin.setSystemMessage();
     }
     /*@Scheduled(cron = "55 59 23 * * *")
     public void groupSign(){

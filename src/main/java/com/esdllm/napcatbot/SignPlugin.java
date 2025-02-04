@@ -16,6 +16,7 @@ import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.dto.event.notice.GroupIncreaseNoticeEvent;
 import com.mikuac.shiro.enums.AtEnum;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -125,7 +126,7 @@ public class SignPlugin extends BotPlugin {
         Long wifeQQ = null;
         int index = 0;
         for (int i = 0;i<signInRecords.getSid()%groupMemberInfoRespList.size();i++){
-            if (i == (signInRecords.getSid()%100-1)){
+            if (i == (signInRecords.getSid()%groupMemberInfoRespList.size()-1)){
                 index = random.nextInt(groupMemberInfoRespList.size());
                 break;
             }
@@ -155,7 +156,12 @@ public class SignPlugin extends BotPlugin {
     private int todayFortune(Bot bot, AnyMessageEvent event) {
         LocalDate today = LocalDate.now();
         LocalDateTime todayMidnight = today.atTime(12,0,59);
+        LocalDateTime todayMorning = today.atTime(8,0,59);
+        LocalDateTime todayAfternoon = today.atTime(20,0,59);
+
         long timeStamp = todayMidnight.toInstant(java.time.ZoneOffset.of("+8")).toEpochMilli();
+        long timeStampMorning = todayMorning.toInstant(java.time.ZoneOffset.of("+8")).toEpochMilli();
+        long timeStampAfternoon = todayAfternoon.toInstant(java.time.ZoneOffset.of("+8")).toEpochMilli();
         LambdaQueryWrapper<SignInRecords> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SignInRecords::getQqUid,event.getUserId());
         if (!Objects.isNull(event.getGroupId())) {
@@ -173,38 +179,104 @@ public class SignPlugin extends BotPlugin {
         }
         // 计算随机数
         Random random = new Random(timeStamp);
+        Random random1 = new Random(timeStampMorning);
+        Random random2 = new Random(timeStampAfternoon);
         int fortune = 0;
+        int fortune1 = 0;
+        int fortune2 = 0;
         for (int i = 0; i<signInRecords.getSid()%200; i++){
             if (i == signInRecords.getSid()%200-1){
-                fortune = random.nextInt(100);
+                fortune = random.nextInt(200);
+                fortune1 = random1.nextInt(200);
+                fortune2 = random2.nextInt(200);
             }
-            random.nextInt(100);
+            random.nextInt(200);
+            random1.nextInt(200);
+            random2.nextInt(200);
         }
-        String sendMsg;
-        if (fortune < 20){
-            sendMsg = MsgUtils.builder().at(event.getUserId()).text(" 猫猫测试中╰(*°▽°*)╯\n...您今天的运势为：" +
-                    "\n"+ "运势不佳，请继续努力！\n今日运势为："+fortune+"\n点评：大凶！欢迎来极端黑暗的世界！" +
-                    "\n").build();
-
-        }else if (fortune < 40){
-            sendMsg = MsgUtils.builder().at(event.getUserId()).text(" 猫猫测试中╰(*°▽°*)╯\n...您今天的运势为：\n"
-                    +  "运势一般，请继续努力！\n今日运势为："+fortune+"\n点评：凶带吉！欢迎来黑暗的世界！" +
-                    "\n").build();
-        }else if (fortune < 60){
-            sendMsg = MsgUtils.builder().at(event.getUserId()).text(" 猫猫测试中╰(*°▽°*)╯\n...您今天的运势为：\n"+
-                    "运势良好，请继续努力！\n今日运势为："+fortune+"\n点评：吉带凶！欢迎来曙光的世界！" +
-                    "\n").build();
-        }else if (fortune < 80){
-            sendMsg = MsgUtils.builder().at(event.getUserId()).text(" 猫猫测试中╰(*°▽°*)╯\n...您今天的运势为：\n"
-                    + "运势优秀，可以躺平！\n今日运势为："+fortune+"\n点评：吉！欢迎来光明的世界！" +
-                    "\n").build();
-        }else {
-            sendMsg = MsgUtils.builder().at(event.getUserId()).text(" 猫猫测试中╰(*°▽°*)╯\n...您今天的运势为：\n"
-                    + "运势完美，直接发财！\n今日运势为："+fortune+"\n点评：大吉！欢迎来完美的世界！" +
-                    "\n").build();
+        if(fortune > 100){
+            fortune /=2;
         }
+        if(fortune1 > 100){
+            fortune1 /=2;
+        }
+        if(fortune2 > 100){
+            fortune2 /=2;
+        }
+        String sendMsg = MsgUtils.builder().at(event.getUserId()).text(" 猫猫测运中╰(*°▽°*)╯\n...您今天的运势为：" +
+                "\n财运："+fortune+"\n桃花运：" +fortune1+"\n事业运："+fortune2+"\n点评："
+                        +getFortuneDesc(fortune,fortune1,fortune2)
+                ).build();
         bot.sendMsg(event,sendMsg,false);
         return MESSAGE_IGNORE;
+    }
+    // 获取运势点评
+    private String getFortuneDesc(int fortune,int fortune1,int fortune2) {
+        String finances = "";
+        String peachBlossomLuck = "";
+        String careerLuck = "";
+        // 财运
+        if (fortune <20){
+            finances = "财运平平，小心被人骗~";
+        }else if(fortune < 40){
+            finances = "财运一般，需要注意~";
+        }else if(fortune < 60){
+            finances = "财运不错";
+        }else if(fortune < 80){
+            finances = "财运很好";
+        }else {
+            finances = "财运很好";
+        }
+        // 桃花运
+        if (fortune1 <20){
+            peachBlossomLuck = "桃花运平平，小心~";
+        }else if(fortune1 < 40){
+            peachBlossomLuck = "桃花运一般，需要注意~";
+        }else if(fortune1 < 60){
+            peachBlossomLuck = "桃花运不错";
+        }else if(fortune1 < 80){
+            peachBlossomLuck = "桃花运很好";
+        }else {
+            peachBlossomLuck = "桃花盛开";
+        }
+        // 事业运
+        if (fortune2 <20){
+            careerLuck = "事业运平平，小心被背刺~";
+        }else if(fortune2 < 40){
+            careerLuck = "事业运一般，需要注意~";
+        }else if(fortune2 < 60){
+            careerLuck = "事业运不错";
+        }else if(fortune2 < 80){
+            careerLuck = "事业顺利";
+        }else {
+            careerLuck = "事业成功";
+        }
+        String fortuneDesc = "";
+        int fortuneDescNum = (fortune+fortune1+fortune2)/3;
+        if (fortuneDescNum < 10){
+            fortuneDesc = "凶";
+        }else if(fortuneDescNum < 20){
+            fortuneDesc = "较凶";
+        }else if(fortuneDescNum < 30){
+            fortuneDesc = "凶带微吉";
+        }else if(fortuneDescNum < 40){
+            fortuneDesc = "凶带吉";
+        }else if (fortuneDescNum < 50){
+            fortuneDesc = "吉带凶";
+        }else if (fortuneDescNum < 60){
+            fortuneDesc = "吉带微凶";
+        }else if (fortuneDescNum < 70){
+            fortuneDesc = "较吉";
+        }else if (fortuneDescNum < 80){
+            fortuneDesc = "吉";
+        }else if (fortuneDescNum < 90){
+            fortuneDesc = "大吉";
+        }else {
+            fortuneDesc = "超大吉";
+        }
+
+        return fortuneDesc + "，"+finances + "，"+peachBlossomLuck + "，"+careerLuck;
+
     }
 
     private SignLevel getSignLevel(Double empirical) {
@@ -245,8 +317,11 @@ public class SignPlugin extends BotPlugin {
         return String.format("http://q1.qlogo.cn/g?b=qq&nk=%s&s=640",qq);
     }
     @Override
-    @MessageHandlerFilter(groups = {679079419L})
     public int onGroupIncreaseNotice(Bot bot, GroupIncreaseNoticeEvent event) {
+        if(event.getGroupId() != 679079419L){
+            return MESSAGE_IGNORE;
+
+        }
         // 构建消息
         String sendMsg = MsgUtils.builder().at(event.getUserId()).text(
                 "\n欢迎新成员加入小雨绒的粉丝群！从此我们就是一家人了。新朋友进群先看下群规哦~"

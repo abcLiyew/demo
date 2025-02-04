@@ -28,6 +28,8 @@ import static java.lang.Thread.sleep;
 @Slf4j
 @Component
 public class BilibiliPushPlugin extends BotPlugin {
+    private static final ThreadLocal<SimpleDateFormat> SAFE_DATE_FORMAT =
+            ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
 
     @Resource
     private PushInfoMapper pushInfoMapper;
@@ -415,9 +417,10 @@ public class BilibiliPushPlugin extends BotPlugin {
         String sendMsg = null;
         for (PushInfo pushInfo : pushInfosList) {
             if (liveRoom.getLiveStatus(pushInfo.getRoomId())!=pushInfo.getLiveStatus()) {
+                String atListStr = pushInfo.getAtList();
                 if (pushInfo.getLiveStatus()==0) {
                     Date liveTime = null;
-                    SimpleDateFormat formatter=new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                    SimpleDateFormat formatter=SAFE_DATE_FORMAT.get();
                     try {
                         liveTime=formatter.parse(liveRoom.getLiveTime(pushInfo.getRoomId()));
                     } catch (ParseException e) {
@@ -426,14 +429,14 @@ public class BilibiliPushPlugin extends BotPlugin {
                     pushInfo.setLiveTime(liveTime);
                     if (pushInfo.getAtAll() == 1){
                     sendMsg = MsgUtils.builder().atAll()
-                            .text(cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 开播了"+
+                            .text(" "+cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 开播了"+
                                     "\n标题："+liveRoom.getLiveTitle(pushInfo.getRoomId())+"\n"+
                                     "分区："+liveRoom.getLiveArea(pushInfo.getRoomId())+"\n"+
                                     "地址："+liveRoom.getLiveUrl(pushInfo.getRoomId())+"\n"+
                                     "[CQ:image,file="+liveRoom.getImageUrl(pushInfo.getRoomId())+"]")
                             .build();
-                    }else if (pushInfo.getAtList()!=null){
-                        String[] atList = pushInfo.getAtList().split(",");
+                    }else if (atListStr != null && !atListStr.isEmpty()){
+                        String[] atList = atListStr.split(",");
                         Long[] atListLong = new Long[atList.length];
                         for (int i = 0; i < atList.length; i++) {
                             atListLong[i] = Long.parseLong(atList[i]);
@@ -442,7 +445,7 @@ public class BilibiliPushPlugin extends BotPlugin {
                         for (Long l : atListLong) {
                             builder = builder.at(l);
                         }
-                        sendMsg = builder.text(
+                        sendMsg = builder.text(" "+
                                 cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 开播了"+
                                         "\n标题："+liveRoom.getLiveTitle(pushInfo.getRoomId())+"\n"+
                                         "分区："+liveRoom.getLiveArea(pushInfo.getRoomId())+"\n"+
@@ -451,7 +454,7 @@ public class BilibiliPushPlugin extends BotPlugin {
                                 .build();
                     } else{
                         sendMsg = MsgUtils.builder()
-                                .text(cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 开播了"+
+                                .text(" "+cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 开播了"+
                                         "\n标题："+liveRoom.getLiveTitle(pushInfo.getRoomId())+"\n"+
                                         "分区："+liveRoom.getLiveArea(pushInfo.getRoomId())+"\n"+
                                         "地址："+liveRoom.getLiveUrl(pushInfo.getRoomId())+"\n"+
@@ -485,7 +488,7 @@ public class BilibiliPushPlugin extends BotPlugin {
         }
         return 0;
     }
-    public void onTimer(Bot bot) throws IOException, InterruptedException {
+    public void onTimer(Bot bot) throws InterruptedException {
         while (true) {
             int i=0;
 

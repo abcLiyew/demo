@@ -29,7 +29,7 @@ public class Sign {
         return resp;
     }
 
-    private SignInRecordsResp isTody(SignInRecords signInRecords) {
+    private SignInRecordsResp isToday(SignInRecords signInRecords) {
         Date updateTime = signInRecords.getUpdateTime();
         Date currenDate = new Date();
 
@@ -58,7 +58,7 @@ public class Sign {
         SignInRecords signInRecordsOne = signInRecordsMapper.selectOne(queryWrapper);
 
         if (signInRecordsOne != null) {
-            return isTody(signInRecordsOne);
+            return isToday(signInRecordsOne);
         }else {
             signInRecordsOne = new SignInRecords();
             signInRecordsOne.setQqUid(event.getUserId());

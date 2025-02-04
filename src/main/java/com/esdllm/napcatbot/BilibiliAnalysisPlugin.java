@@ -49,7 +49,7 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
             }
             s = s.trim();
             // 使用正则表达式查找空白字符及其后面的所有字符
-            Pattern pattern = Pattern.compile("\\s.*|[一-龥].*|[^a-zA-Z0-9./:].*");
+            Pattern pattern = Pattern.compile("[\\s\\u4e00-\\u9fa5]");
             Matcher matcher = pattern.matcher(s);
             if (matcher.find()) {
                 s = s.substring(0, matcher.start()); // 截取空白字符前的部分
@@ -167,7 +167,7 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
         }
         String str = "合作up主：";
         for (Staff s : staff){
-            str = s+s.getName()+",";
+            str = s.getName()+",";
         }
         str = str.substring(0,str.length()-1);
         return str;

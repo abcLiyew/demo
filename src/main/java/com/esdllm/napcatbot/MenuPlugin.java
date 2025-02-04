@@ -7,8 +7,13 @@ import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.enums.AtEnum;
 import org.springframework.stereotype.Component;
 
+import java.util.Set;
+
 @Component
 public class MenuPlugin extends BotPlugin {
+    private static final Set<String> MENU_COMMANDS = Set.of(
+            "菜单", "功能", "功能菜单", "菜单列表", "功能列表", "help"
+    );
     @Override
     @MessageHandlerFilter(at = AtEnum.BOTH)
     public int onAnyMessage(Bot bot, AnyMessageEvent event) {
@@ -48,6 +53,6 @@ public class MenuPlugin extends BotPlugin {
         return MESSAGE_IGNORE;
     }
     private static boolean isMenu(String msg) {
-        return "菜单".equals(msg) || "功能".equals(msg) || "功能菜单".equals(msg) || "功能列表".equals(msg) || "菜单列表".equals(msg)||"help".equals(msg);
-    };
+        return MENU_COMMANDS.contains(msg);
+    }
 }
