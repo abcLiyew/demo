@@ -4,7 +4,7 @@
 
 ::: warning ⚠️声明
 
-1. 本项目遵守 CC-BY-NC 4.0 协议，禁止一切商业使用，如需转载请注明作者 ID
+1. 本项目遵守 MIT 协议，如需转载请注明作者 ID
 2. **请勿滥用，本项目仅用于学习和测试！请勿滥用，本项目仅用于学习和测试！请勿滥用，本项目仅用于学习和测试！**
 3. 利用本项目提供的接口、文档等造成不良影响及后果与本人无关
 4. 由于本项目的特殊性，可能随时停止开发或删档
@@ -60,8 +60,8 @@
 - [Mybatis](https://mybatis.org/mybatis-3/) 是一个持久层框架，它可以帮助开发者将数据库中的数据映射到 Java 对象中。
 - [Mybatis-Plus](https://baomidou.com/) 是一个 MyBatis 的增强工具，在 MyBatis 的基础上只做增强不做改变，为简化开发、提高效率而生。
 - [bilibili-API-collect](https://github.com/SocialSisterYi/bilibili-API-collect/tree/master) 哔哩哔哩-API收集整理【不断更新中....】
-- [豆包](https://www.volcengine.com/product/doubao) 一个基于云函数的QQ机器人开发平台，提供免费的云资源，让开发者快速搭建自己的QQ机器人。
-- [fastjson2](https://alibaba.github.io/fastjson2/) URL_ADDRESS URL_ADDRESS 是一个高性能的 JSON 库，它可以帮助开发者将 JSON 数据映射到 Java 对象中。
+- [DeepSeek](https://api-docs.deepseek.com/) AI大模型
+- [fastjson2](https://alibaba.github.io/fastjson2/) 是一个高性能的 JSON 库，它可以帮助开发者将 JSON 数据映射到 Java 对象中。
 - [httpcomponents](https://hc.apache.org/) 是一个 Java 库，它可以帮助开发者构建强大的 HTTP 客户端，实现 HTTP 请求的发送、接收、处理等。
 
 ## 安装\部署
@@ -124,9 +124,11 @@ mybatis-plus:
 myConfig:
   bot:
     qq: 123456789 # 改成你自己的机器人QQ号
-    doubao:
-      ARK_API_KEY: "your-ark-api-key" # 豆包的 ARK API KEY，请自行改成你的 ARK API KEY
-      ARK_API_ID: "your-ark-api-id" # 豆包的 ARK API ID，请自行改成你的 ARK API ID
+    aiChat:
+      token: "your-ark-token" # DeepSeek 的 ARK API Token，请自行改成你的 ARK API Token
+      model_id: "your-model-id" # DeepSeek 的模型 ID，请自行改成你的模型 ID
+      base_url: "https://api.siliconflow.cn/v1/chat/completions" # DeepSeek 的 API 地址，请自行改成你的 API 地址
+      max_tokens: 4096 # 最大 token 数，请根据你的需求修改
 ```
 ### 打包项目
 ```bash
