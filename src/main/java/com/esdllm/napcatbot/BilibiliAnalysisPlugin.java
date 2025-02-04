@@ -49,7 +49,7 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
             }
             s = s.trim();
             // 使用正则表达式查找空白字符及其后面的所有字符
-            Pattern pattern = Pattern.compile("[\\s\\u4e00-\\u9fa5]");
+            Pattern pattern = Pattern.compile("[\\s一-龥]|[\u3000-〿\uFF00-\uFFEF‐-‟\u3000-〿]");
             Matcher matcher = pattern.matcher(s);
             if (matcher.find()) {
                 s = s.substring(0, matcher.start()); // 截取空白字符前的部分

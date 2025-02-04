@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Objects;
 
 import static java.lang.Thread.sleep;
 
@@ -33,19 +34,16 @@ public class MyAsyncService {
     public void asyncMethod() throws IOException, InterruptedException {
         // 在这里编写你的异步方法逻辑
         try {
-            sleep(1000);
             Bot bot = botContainer.robots.get(qq);
+            while (bot == null || !Objects.equals(bot.getLoginInfo().getData().getUserId(), qq)) {
+                bot = botContainer.robots.get(qq);
+            }
             bilibiliPushPlugin.onTimer(bot);
         } catch (InterruptedException e) {
             log.error("Async method failed", e);
         }
     }
-    @Scheduled(cron = "0 30 * * * *")
-    public void clearChatList(){
-        aiChatPlugin.clear();
-        aiChatPlugin.setSystemMessage();
-    }
-    /*@Scheduled(cron = "55 59 23 * * *")
+    /*@Scheduled(cron = "58 59 23 * * *")
     public void groupSign(){
         // 在这里编写你的定时任务逻辑
         while (true) {

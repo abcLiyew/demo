@@ -15,6 +15,7 @@ import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
@@ -54,7 +55,7 @@ public class AiChatPlugin {
     @PostConstruct
     public void setSystemMessage() {
         ChatMessageUtils system = ChatMessageUtils.builder().role("system")
-                .text("回答尽可能简短");
+                .text("回答尽可能简短,不要使用markdown格式");
         chatMessages.add(system.build());
     }
 
@@ -122,11 +123,26 @@ public class AiChatPlugin {
             return;
         }
         String reasoningContent = chatMessages.get(chatMessages.size() - 1).getReasoning_content();
+        if (!chatMessages.get(chatMessages.size()-1).getRole().equals("assistant")&& chatMessages.size()>2){
+            reasoningContent = chatMessages.get(chatMessages.size() - 2).getReasoning_content();
+        }
         if (Objects.isNull(reasoningContent)){
             bot.sendMsg(event,"消息列表是空的。",false);
         }else {
             bot.sendMsg(event,reasoningContent,false);
         }
     }
+    @AnyMessageHandler
+    @MessageHandlerFilter(cmd = "(清空消息列表.*)$|(开启新对话.*)$",at = AtEnum.NEED)
+    public void onNewChat(Bot bot, AnyMessageEvent event){
+        chatMessages.clear();
+        setSystemMessage();
+        bot.sendMsg(event,"已清空消息列表。",false);
+    }
 
+    @Scheduled(cron = "0 0/30 * * * *")
+    public void clearChatList(){
+        this.clear();
+        this.setSystemMessage();
+    }
 }
