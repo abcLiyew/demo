@@ -27,7 +27,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.3.4</version>
+        <version>3.3.6</version>
     </parent>
 
     <dependencies>
@@ -115,14 +115,6 @@
             <groupId>com.konghq</groupId>
             <artifactId>unirest-java</artifactId>
             <version>3.13.2</version>
-        </dependency>
-
-        <!-- OR as a snazzy new standalone jar with shaded dependencies -->
-        <dependency>
-            <groupId>com.konghq</groupId>
-            <artifactId>unirest-java</artifactId>
-            <version>3.13.2</version>
-            <classifier>standalone</classifier>
         </dependency>
     </dependencies>
 

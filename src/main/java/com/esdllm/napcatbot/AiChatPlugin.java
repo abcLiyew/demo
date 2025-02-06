@@ -30,8 +30,7 @@ public class AiChatPlugin {
     // 从获取API密钥
     @Value("${myConfig.bot.aiChat.token}")
     private String token;
-    @Value("${myConfig.bot.aiChat.model_id}")
-    private String modelId;
+    private final String modelId = ModelEnum.DeepSeek_R1_Official.getName();
     @Value("${myConfig.bot.aiChat.base_url}")
     private String baseUrl;
     @Value("${myConfig.bot.aiChat.max_tokens}")
@@ -55,7 +54,9 @@ public class AiChatPlugin {
     @PostConstruct
     public void setSystemMessage() {
         ChatMessageUtils system = ChatMessageUtils.builder().role("system")
-                .text("回答尽可能简短,不要使用markdown格式");
+                .text("不要使用markdown格式，用户当前都是哔哩哔哩一个女友势虚拟主播小雨绒Candy的粉丝，你应该喊她小雨绒" +
+                        "这里是粉丝群,你是群里的一位群友，聊天过程中尽量不要提起小雨绒，除非有人问" +
+                        "不要欢迎，也不用提到她的直播，就正常的聊天互动即可。注意不要喊用户主人");
         chatMessages.add(system.build());
     }
 
@@ -94,7 +95,7 @@ public class AiChatPlugin {
             resp = aiChatDeepSeekService.getResp(baseUrl, token, modelId, chatMessages, maxTokens);
         }catch (Exception e){
             log.error(e.getMessage());
-            bot.sendMsg(event,"服务器繁忙，请稍后再试。",false);
+            bot.sendMsg(event,"这是Deepseek服务器没给回答，不关我的事(｡･ω･｡)",false);
             chatMessages.remove(chatMessages.size() - 1);
             return;
         }
@@ -104,8 +105,10 @@ public class AiChatPlugin {
             if (choice.getMessage().getRole().equals("assistant")) {
                 String text = choice.getMessage().getContent();
                 sendMsg = text.replaceAll("[#|*]","");
-                sendMsg+="\n\n\n消耗"+resp.getUsage().getTotal_tokens()+"token(请求"+resp.getUsage().getPrompt_tokens()+"，回答"+resp.getUsage().getCompletion_tokens()+")";
-                chatMessages.add(choice.getMessage());
+                sendMsg+="\n\n\n内容由AI生成，可能存在不实信息，请注意甄别";
+                DeepSeekReq.Message choiceMessage = choice.getMessage();
+                choiceMessage.setReasoning_content(null);
+                chatMessages.add(choiceMessage);
                 while (chatMessages.size() > 20) { // 系统消息+10轮对话
                     chatMessages.remove(1); // 始终保留索引0的系统消息
                 }
@@ -118,7 +121,7 @@ public class AiChatPlugin {
     @AnyMessageHandler
     @MessageHandlerFilter(cmd = "(获取思考过程.*)$",at = AtEnum.NEED)
     public void onGetReasoningMessage(Bot bot, AnyMessageEvent event) {
-        if (!modelId.equals(ModelEnum.DeepSeek_R1.getName())){
+        if (!modelId.equals(ModelEnum.DeepSeek_R1.getName())&& !modelId.equals(ModelEnum.DeepSeek_R1_Official.getName())){
             bot.sendMsg(event,"当前模型不支持获取思考过程。",false);
             return;
         }

@@ -14,6 +14,8 @@ public enum ModelEnum {
     GPT_4_32K_0314("gpt-4-32k-0314"),
     GPT_4_1106_preview("gpt-4-1106-preview"),
     DeepSeek_R1("deepseek-ai/DeepSeek-R1"),
-    DeepSeek_V3("deepseek-ai/DeepSeek-V3");
+    DeepSeek_V3("deepseek-ai/DeepSeek-V3"),
+    DeepSeek_R1_Official("deepseek-reasoner"),
+    DeepSeek_V3_Official("deepseek-chat");
     private String name;
 }

@@ -40,6 +40,5 @@ myConfig:
     qq:
     aiChat:
       token: ""
-      model_id: "deepseek-ai/DeepSeek-R1"
-      base_url: ""
+      base_url: "https://api.deepseek.com/chat/completions"
       max_tokens: 4096

@@ -10,11 +10,14 @@ import com.esdllm.napcatbot.pojo.database.PushInfo;
 import com.mikuac.shiro.annotation.MessageHandlerFilter;
 import com.mikuac.shiro.common.utils.MsgUtils;
 import com.mikuac.shiro.core.Bot;
+import com.mikuac.shiro.core.BotContainer;
 import com.mikuac.shiro.core.BotPlugin;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.enums.AtEnum;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -22,14 +25,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static java.lang.Thread.sleep;
-
 
 @Slf4j
 @Component
 public class BilibiliPushPlugin extends BotPlugin {
     private static final ThreadLocal<SimpleDateFormat> SAFE_DATE_FORMAT =
             ThreadLocal.withInitial(() -> new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+
+    @Value("${myConfig.bot.qq}")
+    private  Long qq;
+    @Resource
+    private BotContainer botContainer;
 
     @Resource
     private PushInfoMapper pushInfoMapper;
@@ -51,20 +57,14 @@ public class BilibiliPushPlugin extends BotPlugin {
         message = message.trim();
         if (message.startsWith("添加订阅")) {
             //鉴权
-            if (isAdmin(bot, event)){
+            if (notIsAdmin(bot, event)){
                 return MESSAGE_IGNORE;
             }
-            //解析房间号
             String roomIdStr = message.substring(4).trim();
-            if (roomIdStr.isEmpty()) {
-                bot.sendMsg(event, "房间号不能为空", false);
+            Long roomId = getRoomId(bot, event, roomIdStr);
+            if (roomId==null){
+                bot.sendMsg(event, "房间号格式有误", false);
                 return MESSAGE_IGNORE;
-            }
-            Long roomId;
-            try {
-                roomId = Long.parseLong(roomIdStr);
-            } catch (NumberFormatException e) {
-                throw new RuntimeException(e);
             }
             //判断是否已经订阅过
             PushInfo pushInfoAdd = new PushInfo();
@@ -102,19 +102,14 @@ public class BilibiliPushPlugin extends BotPlugin {
         }
 
         if (message.startsWith("取消订阅")) {
-            if (isAdmin(bot,event)){
-                return MESSAGE_BLOCK;
-            }
-            String roomIdStr = message.substring(4).trim();
-            if (roomIdStr.isEmpty()) {
-                bot.sendMsg(event, "房间号不能为空", false);
+            if (notIsAdmin(bot, event)){
                 return MESSAGE_IGNORE;
             }
-            Long roomId;
-            try {
-                roomId = Long.parseLong(roomIdStr);
-            } catch (NumberFormatException e) {
-                throw new RuntimeException(e);
+            String roomIdStr = message.substring(4).trim();
+            Long roomId = getRoomId(bot, event, roomIdStr);
+            if (roomId==null){
+                bot.sendMsg(event, "房间号格式有误", false);
+                return MESSAGE_IGNORE;
             }
             PushInfo pushInfoDel = new PushInfo();
             pushInfoDel.setRoomId(roomId);
@@ -152,16 +147,16 @@ public class BilibiliPushPlugin extends BotPlugin {
                 return MESSAGE_IGNORE;
             }
             message = message.substring(4).trim();
-            Long roomId = null;
+            Long roomId=null;
             if (!message.isEmpty()) {
-                try {
-                    roomId = Long.parseLong(message);
-                } catch (NumberFormatException e) {
-                    bot.sendMsg(event, MsgUtils.builder().at(event.getUserId()).text("房间号格式错误").build(), false);
+                roomId =getRoomId(bot, event, message);
+                if (roomId == null){
+                    bot.sendMsg(event, "房间号格式有误", false);
                     return MESSAGE_IGNORE;
                 }
             }
-            return liveAtMe(bot, event, roomId);
+            liveAtMe(bot, event, roomId);
+            return MESSAGE_IGNORE;
         }
         if (message.startsWith("取消开播@我")) {
             if (Objects.isNull(event.getGroupId())) {
@@ -171,55 +166,55 @@ public class BilibiliPushPlugin extends BotPlugin {
             message = message.substring(6).trim();
             Long roomId = null;
             if (!message.isEmpty()) {
-                try {
-                    roomId = Long.parseLong(message);
-                }catch (NumberFormatException e) {
-                    bot.sendMsg(event, MsgUtils.builder().at(event.getUserId()).text("房间号格式错误").build(), false);
+                roomId = getRoomId(bot, event, message);
+                if (roomId == null){
+                    bot.sendMsg(event, "房间号格式有误", false);
                     return MESSAGE_IGNORE;
                 }
             }
-            return liveAtMeCancel(bot, event, roomId);
+            liveAtMeCancel(bot, event, roomId);
+            return MESSAGE_IGNORE;
         }
         if (message.startsWith("开播@全体成员")){
             //鉴权
-            if (isAdmin(bot, event)) return MESSAGE_BLOCK;
+            if (notIsAdmin(bot, event)) return MESSAGE_BLOCK;
             if (Objects.isNull(event.getGroupId())) {
                 bot.sendMsg(event, "请在群聊中使用", false);
             }
             message = message.substring(7).trim();
             Long roomId = null;
             if (!message.isEmpty()) {
-                try {
-                    roomId = Long.parseLong(message);
-                }catch (NumberFormatException e) {
-                    bot.sendMsg(event, MsgUtils.builder().at(event.getUserId()).text("房间号格式错误").build(), false);
+                roomId = getRoomId(bot, event, message);
+                if (roomId==null){
+                    bot.sendMsg(event, "房间号格式有误", false);
                     return MESSAGE_IGNORE;
                 }
             }
-            return liveAtAll(bot, event, roomId);
+            liveAtAll(bot, event, roomId);
+            return MESSAGE_IGNORE;
         }
         if (message.startsWith("取消开播@全体成员")){
             //鉴权
-            if (isAdmin(bot, event)) return MESSAGE_BLOCK;
+            if (notIsAdmin(bot, event)) return MESSAGE_BLOCK;
             if (Objects.isNull(event.getGroupId())) {
                 bot.sendMsg(event, "请在群聊中使用", false);
             }
             message = message.substring(9).trim();
             Long roomId = null;
             if (!message.isEmpty()) {
-                try {
-                    roomId = Long.parseLong(message);
-                }catch (NumberFormatException e) {
-                    bot.sendMsg(event, MsgUtils.builder().at(event.getUserId()).text("房间号格式错误").build(), false);
+                roomId = getRoomId(bot, event, message);
+                if (roomId==null){
+                    bot.sendMsg(event, "房间号格式有误", false);
                     return MESSAGE_IGNORE;
                 }
             }
-            return liveAtAllCancel(bot, event, roomId);
+            liveAtAllCancel(bot, event, roomId);
+            return MESSAGE_IGNORE;
         }
         return MESSAGE_IGNORE;
     }
 
-    private boolean isAdmin(Bot bot, AnyMessageEvent event) {
+    private boolean notIsAdmin(Bot bot, AnyMessageEvent event) {
         LambdaQueryWrapper<Admin> adminLambdaQueryWrapper = new LambdaQueryWrapper<>();
         adminLambdaQueryWrapper.eq(Admin::getQqUid, event.getUserId());
         List<Admin> adminList = adminMapper.selectList(adminLambdaQueryWrapper);
@@ -244,7 +239,7 @@ public class BilibiliPushPlugin extends BotPlugin {
         return false;
     }
 
-    private int liveAtAllCancel(Bot bot, AnyMessageEvent event, Long roomId) {
+    private void liveAtAllCancel(Bot bot, AnyMessageEvent event, Long roomId) {
         LambdaQueryWrapper<PushInfo> queryWrapper = new LambdaQueryWrapper<>();
         if (Objects.isNull(event.getGroupId())){
             queryWrapper.isNull(PushInfo::getGroupId);
@@ -255,35 +250,35 @@ public class BilibiliPushPlugin extends BotPlugin {
         List<PushInfo> pushInfoList = pushInfoMapper.selectList(queryWrapper);
         if (pushInfoList.isEmpty()){
             bot.sendMsg(event,"该群没有订阅任何直播间",false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         if (pushInfoList.size()==1) {
             if (roomId != null && !roomId.equals(pushInfoList.get(0).getRoomId())) {
                 bot.sendMsg(event, MsgUtils.builder().at(event.getUserId())
                       .text(" 没有订阅该直播间").build(), false);
-                return MESSAGE_IGNORE;
+                return ;
             }
             if (pushInfoList.get(0).getAtAll() == 0) {
                 bot.sendMsg(event,MsgUtils.builder().at(event.getUserId())
                      .text(" 没有开播@全体成员").build(), false);
-                return MESSAGE_IGNORE;
+                return ;
             }
             pushInfoList.get(0).setAtAll(0);
             pushInfoMapper.updateById(pushInfoList.get(0));
             bot.sendMsg(event,MsgUtils.builder().at(event.getUserId())
                  .text(" 取消开播@全体成员成功").build(), false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         if (roomId == null){
             bot.sendMsg(event,MsgUtils.builder().at(event.getUserId()).text("请输入房间号").build(),false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         for (PushInfo pushInfo : pushInfoList) {
             if (roomId.equals(pushInfo.getRoomId())) {
                 if (pushInfo.getAtAll() == 0) {
                     bot.sendMsg(event,MsgUtils.builder().at(event.getUserId())
                          .text(" 没有开播@全体成员").build(), false);
-                    return MESSAGE_IGNORE;
+                    return ;
                 }
                 pushInfo.setAtAll(0);
                 pushInfoMapper.updateById(pushInfo);
@@ -295,44 +290,43 @@ public class BilibiliPushPlugin extends BotPlugin {
         }
         bot.sendMsg(event,MsgUtils.builder().at(event.getUserId()).text(" 没有订阅该直播间").build(),false);
 
-        return MESSAGE_IGNORE;
     }
 
-    private int liveAtAll(Bot bot, AnyMessageEvent event, Long roomId) {
+    private void liveAtAll(Bot bot, AnyMessageEvent event, Long roomId) {
         LambdaQueryWrapper<PushInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(PushInfo::getGroupId,event.getGroupId());
         List<PushInfo> pushInfoList = pushInfoMapper.selectList(queryWrapper);
         if (pushInfoList.isEmpty()){
             bot.sendMsg(event,"该群没有订阅任何直播间",false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         if (pushInfoList.size()==1) {
             if (roomId!= null &&!roomId.equals(pushInfoList.get(0).getRoomId())) {
                 bot.sendMsg(event, MsgUtils.builder().at(event.getUserId())
                       .text(" 没有订阅该直播间").build(), false);
-                return MESSAGE_IGNORE;
+                return ;
             }
             if (pushInfoList.get(0).getAtAll() == 1) {
                 bot.sendMsg(event,MsgUtils.builder().at(event.getUserId())
                       .text(" 已经开播@全体成员了").build(), false);
-                return MESSAGE_IGNORE;
+                return ;
             }
             pushInfoList.get(0).setAtAll(1);
             pushInfoMapper.updateById(pushInfoList.get(0));
             bot.sendMsg(event,MsgUtils.builder().at(event.getUserId())
                  .text(" 添加开播@全体成员成功").build(), false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         if (roomId == null){
             bot.sendMsg(event,MsgUtils.builder().at(event.getUserId()).text(" 请输入房间号").build(),false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         for (PushInfo pushInfo : pushInfoList) {
             if (roomId.equals(pushInfo.getRoomId())) {
                 if (pushInfo.getAtAll() == 1) {
                     bot.sendMsg(event,MsgUtils.builder().at(event.getUserId())
                          .text(" 已经开播@全体成员了").build(), false);
-                    return MESSAGE_IGNORE;
+                    return ;
                 }
                 pushInfo.setAtAll(1);
                 pushInfoMapper.updateById(pushInfo);
@@ -344,10 +338,9 @@ public class BilibiliPushPlugin extends BotPlugin {
         }
         bot.sendMsg(event,MsgUtils.builder().at(event.getUserId()).text(" 你没有订阅该直播间").build(),false);
 
-        return MESSAGE_IGNORE;
     }
 
-    private int liveAtMeCancel(Bot bot, AnyMessageEvent event, Long roomId) {
+    private void liveAtMeCancel(Bot bot, AnyMessageEvent event, Long roomId) {
         LambdaQueryWrapper<PushInfo> queryWrapper = new LambdaQueryWrapper<>();
         if (Objects.isNull(event.getGroupId())){
             queryWrapper.isNull(PushInfo::getGroupId);
@@ -358,13 +351,13 @@ public class BilibiliPushPlugin extends BotPlugin {
         List<PushInfo> pushInfoList = pushInfoMapper.selectList(queryWrapper);
         if (pushInfoList.isEmpty()){
             bot.sendMsg(event,"该群没有订阅任何直播间",false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         if (pushInfoList.size()==1) {
             if (roomId != null && !roomId.equals(pushInfoList.get(0).getRoomId())) {
                 bot.sendMsg(event, MsgUtils.builder().at(event.getUserId())
                         .text(" 你没有订阅该直播间").build(), false);
-                return MESSAGE_IGNORE;
+                return ;
             }
             List<String> atList = new ArrayList<>();
             Collections.addAll(atList, pushInfoList.get(0).getAtList().split(","));
@@ -375,16 +368,16 @@ public class BilibiliPushPlugin extends BotPlugin {
                     pushInfoList.get(0).setAtList(String.join(",",atList));
                     pushInfoMapper.updateById(pushInfoList.get(0));
                     bot.sendMsg(event,MsgUtils.builder().at(event.getUserId()).text(" 取消开播@你成功").build(),false);
-                    return MESSAGE_IGNORE;
+                    return ;
                 }
             }
             bot.sendMsg(event, MsgUtils.builder().at(event.getUserId())
                     .text(" 你没有订阅该直播间").build(), false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         if (roomId == null){
             bot.sendMsg(event,MsgUtils.builder().at(event.getUserId()).text(" 请输入房间号").build(),false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         for (PushInfo pushInfo : pushInfoList) {
             if (roomId.equals(pushInfo.getRoomId())){
@@ -403,18 +396,17 @@ public class BilibiliPushPlugin extends BotPlugin {
                         text(new CardInfo().getUserName(liveRoom.getUid(pushInfo.getRoomId()))+
                                 " 取消开播@你添加成功").build();
                 bot.sendMsg(event,sendMsg,false);
-                return MESSAGE_IGNORE;
+                return ;
             }
         }
         bot.sendMsg(event,MsgUtils.builder().at(event.getUserId()).text(" 你没有订阅该直播间").build(),false);
-        return MESSAGE_IGNORE;
     }
 
 
-    private int LivePush(Bot bot) throws IOException {
+    private void LivePush(Bot bot) throws IOException {
         List<PushInfo> pushInfosList = pushInfoMapper.selectList(null);
         //构建消息
-        String sendMsg = null;
+        String sendMsg;
         for (PushInfo pushInfo : pushInfosList) {
             if (liveRoom.getLiveStatus(pushInfo.getRoomId())!=pushInfo.getLiveStatus()) {
                 String atListStr = pushInfo.getAtList();
@@ -486,28 +478,25 @@ public class BilibiliPushPlugin extends BotPlugin {
             }
 
         }
-        return 0;
     }
-    public void onTimer(Bot bot) throws InterruptedException {
-        while (true) {
-            int i=0;
-
-            try {
-                i = LivePush(bot);
-            } catch (IOException e) {
-                log.info(e.getMessage());
+    @Scheduled(cron = "0/1 * * * * *")
+    public void onTime() {
+        // 在这里编写你的定时方法逻辑
+        try {
+            Bot bot = botContainer.robots.get(qq);
+            while (bot == null || !Objects.equals(bot.getLoginInfo().getData().getUserId(), qq)) {
+                bot = botContainer.robots.get(qq);
             }
-
-            if (i != 0) {
-                break;
-            }
-            sleep(1000);
+            LivePush(bot);
+        } catch (Exception e) {
+            log.error("live error", e);
         }
     }
-    private int liveAtMe(Bot bot,AnyMessageEvent event,Long roomId){
+
+    private void liveAtMe(Bot bot,AnyMessageEvent event,Long roomId){
         LambdaQueryWrapper<PushInfo> queryWrapper = new LambdaQueryWrapper<>();
         if (Objects.isNull(event.getGroupId())){
-            queryWrapper.eq(PushInfo::getGroupId,event.getUserId());
+            queryWrapper.eq(PushInfo::getQqUid,event.getUserId());
             queryWrapper.isNull(PushInfo::getGroupId);
         }else {
             queryWrapper.eq(PushInfo::getGroupId,event.getGroupId());
@@ -515,19 +504,19 @@ public class BilibiliPushPlugin extends BotPlugin {
         List<PushInfo> pushInfoList = pushInfoMapper.selectList(queryWrapper);
         if (pushInfoList.isEmpty()){
             bot.sendMsg(event," 该群没有订阅任何直播间",false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         if (pushInfoList.size()==1){
             if (roomId !=null&& !roomId.equals(pushInfoList.get(0).getRoomId())){
                 bot.sendMsg(event,MsgUtils.builder().at(event.getUserId())
                         .text("你没有订阅该直播间").build(),false);
-                return MESSAGE_IGNORE;
+                return ;
             }
             if (pushInfoList.get(0).getAtAll()==1){
                 String sendMsg = MsgUtils.builder().at(event.getUserId()).
                         text(" 开播提醒已经@全体成员了！").build();
                 bot.sendMsg(event,sendMsg,false);
-                return MESSAGE_IGNORE;
+                return ;
             }
             PushInfo pushInfo = pushInfoList.get(0);
             String atList = pushInfo.getAtList();
@@ -538,20 +527,24 @@ public class BilibiliPushPlugin extends BotPlugin {
                 String sendMsg = MsgUtils.builder().at(event.getUserId()).
                         text(" 现在已经开播@你了！").build();
                 bot.sendMsg(event,sendMsg,false);
-                return MESSAGE_IGNORE;
+                return ;
             }
-            atList = atList + ","+event.getUserId();
+            if (atList.isEmpty()) {
+                atList =event.getUserId().toString();
+            }else {
+                atList = atList+","+event.getUserId().toString();
+            }
             pushInfo.setAtList(atList);
             pushInfoMapper.updateById(pushInfo);
             String sendMsg = MsgUtils.builder().at(event.getUserId()).
                     text(new CardInfo().getUserName(liveRoom.getUid(pushInfo.getRoomId()))+
                             " 开播@你添加成功").build();
             bot.sendMsg(event,sendMsg,false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         if (roomId == null){
             bot.sendMsg(event,MsgUtils.builder().at(event.getUserId()).text(" 该群订阅了多个直播间，请指定房间号").build(),false);
-            return MESSAGE_IGNORE;
+            return ;
         }
         for (PushInfo pushInfo : pushInfoList) {
             if (roomId.equals(pushInfo.getRoomId())){
@@ -559,13 +552,13 @@ public class BilibiliPushPlugin extends BotPlugin {
                     String sendMsg = MsgUtils.builder().at(event.getUserId()).
                             text(" 开播提醒已经@全体成员了！").build();
                     bot.sendMsg(event,sendMsg,false);
-                    return MESSAGE_IGNORE;
+                    return ;
                 }
                 if (pushInfo.getAtList().contains(event.getUserId().toString())){
                     String sendMsg = MsgUtils.builder().at(event.getUserId()).
                             text(" 现在已经开播@你了！").build();
                     bot.sendMsg(event,sendMsg,false);
-                    return MESSAGE_IGNORE;
+                    return ;
                 }
                 pushInfo.setAtList(pushInfo.getAtList()+","+event.getUserId());
                 pushInfoMapper.updateById(pushInfo);
@@ -573,10 +566,24 @@ public class BilibiliPushPlugin extends BotPlugin {
                         text(new CardInfo().getUserName(liveRoom.getUid(pushInfo.getRoomId()))+
                                 " 开播@你添加成功").build();
                 bot.sendMsg(event,sendMsg,false);
-                return MESSAGE_IGNORE;
+                return ;
             }
         }
         bot.sendMsg(event,MsgUtils.builder().at(event.getUserId()).text(" 没有订阅该直播间").build(),false);
-        return MESSAGE_IGNORE;
+    }
+    private Long getRoomId(Bot bot, AnyMessageEvent event,String message){
+        //解析房间号
+        if (message.isEmpty()) {
+            bot.sendMsg(event, "房间号不能为空", false);
+            return null;
+        }
+        long roomId;
+        try {
+            roomId = Long.parseLong(message);
+        } catch (NumberFormatException e) {
+            log.error("房间号解析错误 传入的message={}", message);
+            return null;
+        }
+        return roomId;
     }
 }

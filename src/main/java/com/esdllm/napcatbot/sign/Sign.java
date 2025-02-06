@@ -6,6 +6,7 @@ import com.esdllm.napcatbot.pojo.SignInRecordsResp;
 import com.esdllm.napcatbot.pojo.database.SignInRecords;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -14,6 +15,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Objects;
 
+@Slf4j
 @Component
 public class Sign {
     @Resource
@@ -81,6 +83,7 @@ public class Sign {
         resp.setRetMsg(" 签到失败");
         resp.setDesc(" 系统内部错误");
         resp.setSignInRecords(null);
+        log.error("系统错误，签到失败,addEmpirical = {}", addEmpirical);
         return resp;
     }
 

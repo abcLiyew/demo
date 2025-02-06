@@ -16,7 +16,6 @@ import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.dto.event.notice.GroupIncreaseNoticeEvent;
 import com.mikuac.shiro.enums.AtEnum;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
