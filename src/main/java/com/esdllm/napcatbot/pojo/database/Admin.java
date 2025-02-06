@@ -85,18 +85,16 @@ public class Admin implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", adminId=").append(adminId);
-        sb.append(", qqUid=").append(qqUid);
-        sb.append(", groupId=").append(groupId);
-        sb.append(", createTime=").append(createTime);
-        sb.append(", updateTime=").append(updateTime);
-        sb.append(", isDelete=").append(isDelete);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
+        return getClass().getSimpleName() +
+                " [" +
+                "Hash = " + hashCode() +
+                ", adminId=" + adminId +
+                ", qqUid=" + qqUid +
+                ", groupId=" + groupId +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", isDelete=" + isDelete +
+                ", serialVersionUID=" + serialVersionUID +
+                "]";
     }
 }

@@ -4,9 +4,9 @@ import lombok.Getter;
 
 @Getter
 public class BilibiliException extends RuntimeException {
-   private int code;
-   private String message;
-   private String description;
+   private final int  code;
+   private final String message;
+   private final String description;
    public BilibiliException(String message) {
      super(message);
      this.code=0;

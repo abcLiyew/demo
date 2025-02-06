@@ -13,7 +13,7 @@ public class SpringUtils implements ApplicationContextAware {
 	* 为空时，设置实例
 	*/
     @Override
-    public void setApplicationContext(ApplicationContext applCon) throws BeansException {
+    public void setApplicationContext(  ApplicationContext applCon) throws BeansException {
         if (SpringUtils.applCon == null) {
             SpringUtils.applCon = applCon;
         }

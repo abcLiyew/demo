@@ -118,21 +118,19 @@ public class PushInfo implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", bilibiliUid=").append(roomId);
-        sb.append(", groupId=").append(groupId);
-        sb.append(", qqUid=").append(qqUid);
-        sb.append(", atAll=").append(atAll);
-        sb.append(", atList=").append(atList);
-        sb.append(", createTime=").append(createTime);
-        sb.append(", updateTime=").append(updateTime);
-        sb.append(", isDelete=").append(isDelete);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
+        return getClass().getSimpleName() +
+                " [" +
+                "Hash = " + hashCode() +
+                ", id=" + id +
+                ", bilibiliUid=" + roomId +
+                ", groupId=" + groupId +
+                ", qqUid=" + qqUid +
+                ", atAll=" + atAll +
+                ", atList=" + atList +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", isDelete=" + isDelete +
+                ", serialVersionUID=" + serialVersionUID +
+                "]";
     }
 }

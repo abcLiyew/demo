@@ -6,7 +6,6 @@ import com.esdllm.napcatbot.pojo.bilibili.BilibiliVideoResp;
 import com.esdllm.napcatbot.pojo.bilibili.model.VideoInfo;
 import com.esdllm.napcatbot.pojo.bilibili.model.data.video.Staff;
 import org.apache.http.HttpEntity;
-import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
@@ -56,10 +55,9 @@ public class BilibiliClient {
      * @return 视频信息
      */
     private VideoInfo getVideoInfoBase(String reqUrl) throws IOException {
-        String url = reqUrl;
-        CloseableHttpResponse response = ApiBase.getCloseableHttpResponse(url);
+        CloseableHttpResponse response = ApiBase.getCloseableHttpResponse(reqUrl);
         HttpEntity entity = response.getEntity();
-        BilibiliVideoResp resp = null;
+        BilibiliVideoResp resp;
         try {
             resp = JSON.parseObject(EntityUtils.toString(entity), BilibiliVideoResp.class);
         } catch (Exception e) {
@@ -118,7 +116,7 @@ public class BilibiliClient {
         if (videoInfo !=null&& videoInfo.getBvid().equals(bvid)){
             return videoInfo.getPic();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -150,7 +148,7 @@ public class BilibiliClient {
         if (videoInfo != null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getTitle();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -182,7 +180,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getDesc();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -214,7 +212,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getDuration();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -246,7 +244,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getPubdate();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -278,7 +276,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getStat().getView();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -310,7 +308,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getStat().getDanmaku();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -342,7 +340,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getStat().getReply();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -374,7 +372,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getStat().getFavorite();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -406,7 +404,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getStat().getCoin();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -438,7 +436,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getStat().getShare();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -470,7 +468,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getStat().getNow_rank();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -502,7 +500,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getStat().getHis_rank();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -534,7 +532,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getOwner().getMid();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -566,7 +564,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getOwner().getName();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -598,7 +596,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getOwner().getFace();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -630,7 +628,7 @@ public class BilibiliClient {
         if (videoInfo != null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getPages().size();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -662,7 +660,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getRights().getIs_stein_gate()==1;
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -694,7 +692,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getStaff();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
@@ -727,7 +725,7 @@ public class BilibiliClient {
         if (videoInfo!= null && videoInfo.getBvid().equals(bvid)) {
             return videoInfo.getPages().get(page-1).getPart();
         }
-        VideoInfo info = null;
+        VideoInfo info;
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {

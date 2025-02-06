@@ -16,12 +16,12 @@ public class DeepSeekResp {
     private List<Object> tool_calls;
     private Usage usage;
     @Data
-    public class Choices{
+    public static class Choices{
         private String finish_reason;
         private DeepSeekReq.Message message;
     }
     @Data
-    public class Usage{
+    public static class Usage{
         private Integer completion_tokens;
         private Integer prompt_tokens;
         private Integer total_tokens;

@@ -27,7 +27,7 @@ public class Live {
      * @return LiveRoom 直播间信息
      */
     public LiveRoom getLiveRoom(Long roomId)  {
-        BilibiliLiveResp resp = null;
+        BilibiliLiveResp resp;
         try {
             resp = getBilibiliLiveResp(roomId);
         } catch (IOException e) {
@@ -48,7 +48,7 @@ public class Live {
 
         CloseableHttpResponse response = ApiBase.getCloseableHttpResponse(url);
 
-        BilibiliLiveResp resp = null;
+        BilibiliLiveResp resp;
         try {
             HttpEntity entity = response.getEntity();
             resp = JSON.parseObject(EntityUtils.toString(entity), BilibiliLiveResp.class);
@@ -82,9 +82,8 @@ public class Live {
      * 获取直播间地址
      * @param room_id 直播间房间号
      * @return String 直播间地址
-     * @throws IOException 网络异常
      */
-    public String getLiveUrl(Long room_id) throws IOException {
+    public String getLiveUrl(Long room_id) {
         String baseLiveUrl = "https://live.bilibili.com/";
         return baseLiveUrl + room_id;
     }

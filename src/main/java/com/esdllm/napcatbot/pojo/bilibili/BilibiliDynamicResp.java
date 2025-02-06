@@ -2,8 +2,6 @@ package com.esdllm.napcatbot.pojo.bilibili;
 
 import lombok.Data;
 
-import java.util.List;
-
 @Data
 public class BilibiliDynamicResp {
     private int code;
@@ -13,13 +11,13 @@ public class BilibiliDynamicResp {
     private Data data;
 
     @lombok.Data
-    public  class Data {
+    public static class Data {
         private Card card;
         private Long result;
         private Long _gt_;
 
         @lombok.Data
-        public  class Card {
+        public static class Card {
             private Object activity_infos;
             private String card;
             private Desc desc;
@@ -27,7 +25,7 @@ public class BilibiliDynamicResp {
             private String extend_json;
 
             @lombok.Data
-            public  class Desc{
+            public static class Desc{
                 private Long uid;
                 private Integer type;
                 private Long rid;
@@ -58,7 +56,7 @@ public class BilibiliDynamicResp {
                 private Object previous;
 
                 @lombok.Data
-                public  class UserProfile{
+                public static class UserProfile{
                     private Info info;
                     private Object card;
                     private Object vip;
@@ -69,7 +67,7 @@ public class BilibiliDynamicResp {
                     private Object level_info;
 
                     @lombok.Data
-                    public  class Info{
+                    public static class Info{
                         private Long uid;
                         private String uname;
                         private String face;

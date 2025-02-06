@@ -18,7 +18,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -100,7 +99,7 @@ public class AiChatPlugin {
             return;
         }
         // 处理ai返回的结果
-        String sendMsg = "";
+        String sendMsg;
         for (DeepSeekResp.Choices choice : resp.getChoices()) {
             if (choice.getMessage().getRole().equals("assistant")) {
                 String text = choice.getMessage().getContent();

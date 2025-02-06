@@ -4,7 +4,6 @@ import com.alibaba.fastjson2.JSON;
 import com.esdllm.exception.BilibiliException;
 import com.esdllm.napcatbot.pojo.bilibili.BilibiliDynamicResp;
 import org.apache.http.HttpEntity;
-import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
@@ -20,18 +19,15 @@ public class Dynamic {
         if(dynamicId == null || dynamicId.isEmpty()){
             throw new BilibiliException("动态ID不能为空");
         }
-        BilibiliDynamicResp resp = null;
+        BilibiliDynamicResp resp;
         String url = BaseUrl + dynamicId;
-        CloseableHttpResponse response = ApiBase.getCloseableHttpResponse(url);
 
-        try {
+        try (CloseableHttpResponse response = ApiBase.getCloseableHttpResponse(url)) {
             HttpEntity entity = response.getEntity();
-            resp = JSON.parseObject(EntityUtils.toString(entity),BilibiliDynamicResp.class);
+            resp = JSON.parseObject(EntityUtils.toString(entity), BilibiliDynamicResp.class);
             EntityUtils.consume(entity);
         } catch (Exception e) {
             throw new RuntimeException(e);
-        } finally {
-            response.close();
         }
         if (Objects.isNull(resp) ||resp.getCode() != 0){
             throw new BilibiliException("获取动态详情失败");

@@ -92,19 +92,17 @@ public class SignInRecords implements Serializable {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", sid=").append(sid);
-        sb.append(", qqUid=").append(qqUid);
-        sb.append(", groupId=").append(groupId);
-        sb.append(", empirical=").append(empirical);
-        sb.append(", createTime=").append(createTime);
-        sb.append(", updateTime=").append(updateTime);
-        sb.append(", isDelete=").append(isDelete);
-        sb.append(", serialVersionUID=").append(serialVersionUID);
-        sb.append("]");
-        return sb.toString();
+        return getClass().getSimpleName() +
+                " [" +
+                "Hash = " + hashCode() +
+                ", sid=" + sid +
+                ", qqUid=" + qqUid +
+                ", groupId=" + groupId +
+                ", empirical=" + empirical +
+                ", createTime=" + createTime +
+                ", updateTime=" + updateTime +
+                ", isDelete=" + isDelete +
+                ", serialVersionUID=" + serialVersionUID +
+                "]";
     }
 }

@@ -122,7 +122,7 @@ public class SignPlugin extends BotPlugin {
         // 获取群成员列表
         ActionList<GroupMemberInfoResp> groupMemberList = bot.getGroupMemberList(event.getGroupId());
         List<GroupMemberInfoResp> groupMemberInfoRespList = groupMemberList.getData();
-        Long wifeQQ = null;
+        Long wifeQQ;
         int index = 0;
         for (int i = 0;i<signInRecords.getSid()%groupMemberInfoRespList.size();i++){
             if (i == (signInRecords.getSid()%groupMemberInfoRespList.size()-1)){
@@ -211,9 +211,9 @@ public class SignPlugin extends BotPlugin {
     }
     // 获取运势点评
     private String getFortuneDesc(int fortune,int fortune1,int fortune2) {
-        String finances = "";
-        String peachBlossomLuck = "";
-        String careerLuck = "";
+        String finances;
+        String peachBlossomLuck;
+        String careerLuck;
         // 财运
         if (fortune <20){
             finances = "财运平平，小心被人骗~";
@@ -250,7 +250,7 @@ public class SignPlugin extends BotPlugin {
         }else {
             careerLuck = "事业成功";
         }
-        String fortuneDesc = "";
+        String fortuneDesc;
         int fortuneDescNum = (fortune+fortune1+fortune2)/3;
         if (fortuneDescNum < 10){
             fortuneDesc = "凶";

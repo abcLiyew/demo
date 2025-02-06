@@ -29,13 +29,13 @@ public class ShortChain {
      * @return ShotChainInfo 短链信息
      */
     public ShotChainInfo getShotChainInfo(String shortChainUrl){
-        HttpResponse response = null;
+        HttpResponse response;
         try {
             response = ApiBase.getHttpResponseNotRedirect(shortChainUrl);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        String location = null;
+        String location;
         try {
             location = response.getFirstHeader("Location").getValue();
         } catch (Exception e) {
@@ -153,7 +153,7 @@ public class ShortChain {
          if (shotChainInfo.getType()!=2){
              throw new RuntimeException("不是动态");
          }
-        BilibiliDynamicResp.Data.Card card = null;
+        BilibiliDynamicResp.Data.Card card;
         try {
             card = new Dynamic().getDynamicDetail(shotChainInfo.getChainId());
         } catch (IOException e) {

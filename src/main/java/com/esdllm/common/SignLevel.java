@@ -1,6 +1,11 @@
 package com.esdllm.common;
 
 
+import lombok.Getter;
+import lombok.Setter;
+
+
+@Getter
 public enum SignLevel {
     ZERO(15.0,"路人","排斥"),
     ONE(40.0,"陌生","冷漠"),
@@ -13,42 +18,22 @@ public enum SignLevel {
     EIGHT(520.0,"情投意合","亲密"),
     NINE(630.0,"挚友","无话不谈");
 
-
+    @Setter
     private Double empirical;
 
 
-    public void setAttitude(String attitude) {
-        this.attitude = attitude;
-    }
-
+    @Setter
     private String opinion;
 
+    @Setter
     private String attitude;
 
-    private SignLevel(Double empirical, String opinion, String attitude) {
+    SignLevel(Double empirical, String opinion, String attitude) {
         this.empirical = empirical;
         this.opinion = opinion;
         this.attitude = attitude;
     }
-    public Double getEmpirical() {
-        return empirical;
-    }
 
-    public void setEmpirical(Double empirical) {
-        this.empirical = empirical;
-    }
-
-    public String getOpinion() {
-        return opinion;
-    }
-
-    public void setOpinion(String opinion) {
-        this.opinion = opinion;
-    }
-
-    public String getAttitude() {
-        return attitude;
-    }
     @Override
     public String toString() {
         return "好感度等级："+this.opinion+"\n对你的态度："+this.attitude;

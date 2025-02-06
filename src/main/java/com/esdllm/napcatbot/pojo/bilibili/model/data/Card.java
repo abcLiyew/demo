@@ -19,7 +19,7 @@ public class Card {
     private String place;
     private String description;
     private Integer article;
-    private List attentions;
+    private List<Object> attentions;
     private Integer fans;
     private Integer friend;
     private Integer attention;

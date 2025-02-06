@@ -17,5 +17,5 @@ public enum ModelEnum {
     DeepSeek_V3("deepseek-ai/DeepSeek-V3"),
     DeepSeek_R1_Official("deepseek-reasoner"),
     DeepSeek_V3_Official("deepseek-chat");
-    private String name;
+    private final String name;
 }

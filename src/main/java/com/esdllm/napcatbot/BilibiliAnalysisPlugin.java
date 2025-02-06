@@ -72,7 +72,6 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
         }
         for (String s : strArr){
             int i = s.indexOf("BV");
-            int j = s.indexOf("av");
             if (i!=-1) {
                 String bvid = s.substring(i,i+12);
                 try {
@@ -108,7 +107,7 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
             indexOf =urlArr[urlArr.length-1].length();
         }
         String dynamicIdStr = urlArr[urlArr.length-1].substring(0, indexOf);
-        BilibiliDynamicResp.Data.Card  card = null;
+        BilibiliDynamicResp.Data.Card  card;
         try {
             card = dynamic.getDynamicDetail(dynamicIdStr);
         } catch (IOException e) {
@@ -124,7 +123,7 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
             indexOf =urlArr[urlArr.length-1].length();
         }
         String videoIdStr = urlArr[urlArr.length-1].substring(0, indexOf);
-        VideoInfo info = null;
+        VideoInfo info;
         if (videoIdStr.startsWith("BV")){
             try {
                 info= bilibiliClient.getVideoInfo(videoIdStr);
@@ -223,7 +222,8 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
         ObjectMapper objectMapper = new ObjectMapper();
 
         try {
-            return objectMapper.readValue(json, new TypeReference<Map<String, Object>>() {});
+            return objectMapper.readValue(json, new TypeReference<>() {
+            });
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
