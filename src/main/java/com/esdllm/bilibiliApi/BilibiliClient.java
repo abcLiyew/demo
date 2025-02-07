@@ -5,8 +5,9 @@ import com.esdllm.exception.BilibiliException;
 import com.esdllm.napcatbot.pojo.bilibili.BilibiliVideoResp;
 import com.esdllm.napcatbot.pojo.bilibili.model.VideoInfo;
 import com.esdllm.napcatbot.pojo.bilibili.model.data.video.Staff;
+import kong.unirest.HttpResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Component;
 
@@ -14,6 +15,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
+@Slf4j
 @Component
 public class BilibiliClient {
     private final String videoBaseUrl = "https://api.bilibili.com/x/web-interface/view?bvid=";
@@ -55,13 +57,12 @@ public class BilibiliClient {
      * @return 视频信息
      */
     private VideoInfo getVideoInfoBase(String reqUrl) throws IOException {
-        CloseableHttpResponse response = ApiBase.getCloseableHttpResponse(reqUrl);
-        HttpEntity entity = response.getEntity();
+        HttpResponse<String> response = ApiBase.getCloseableHttpResponse(reqUrl);
         BilibiliVideoResp resp;
         try {
-            resp = JSON.parseObject(EntityUtils.toString(entity), BilibiliVideoResp.class);
+            resp = JSON.parseObject(response.getBody(), BilibiliVideoResp.class);
         } catch (Exception e) {
-            throw new BilibiliException("获取视频信息失败");
+            throw new BilibiliException("获取视频信息失败 错误在"+BilibiliClient.class.getName()+"65行，错误消息："+e.getMessage());
         }
         if (resp == null || resp.getCode() != 0) {
             throw new BilibiliException("获取视频信息失败");
@@ -86,7 +87,7 @@ public class BilibiliClient {
         try {
             return getVideoInfo(bvid).getAid();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取视频信息失败 错误在"+BilibiliClient.class.getName()+"错误消息： "+e.getMessage());
         }
     }
     /**
@@ -104,7 +105,7 @@ public class BilibiliClient {
         try {
             return getVideoInfo(aid).getBvid();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取BV号异常 错误在"+BilibiliClient.class.getName()+"100行，错误消息："+e.getMessage());
         }
     }
     /**
@@ -120,7 +121,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"124行，错误消息："+e.getMessage());
         }
         return info.getPic();
     }
@@ -136,7 +137,7 @@ public class BilibiliClient {
         try {
             return getVideoCoverUrl(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取封面失败，错误在"+BilibiliClient.class.getName()+"149行，错误消息："+e.getMessage());
         }
     }
     /**
@@ -152,7 +153,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取视频消息失败，错误在"+BilibiliClient.class.getName()+"156行，错误消息："+e.getMessage());
         }
         return info.getTitle();
     }
@@ -168,7 +169,7 @@ public class BilibiliClient {
         try {
             return getVideoTitle(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取标题失败，错误在"+BilibiliClient.class.getName()+"172行，错误消息："+e.getMessage());
         }
     }
      /**
@@ -184,7 +185,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"188行，错误消息："+e.getMessage());
         }
         return info.getDesc();
     }
@@ -200,7 +201,7 @@ public class BilibiliClient {
         try {
             return getVideoDesc(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取视频简介信息失败，错误在"+BilibiliClient.class.getName()+"204行，错误消息："+e.getMessage());
         }
     }
     /**
@@ -216,7 +217,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取视频消息失败，错误在"+BilibiliClient.class.getName()+"220行，错误消息："+e.getMessage());
         }
         return info.getDuration();
     }
@@ -232,7 +233,7 @@ public class BilibiliClient {
         try {
             return getVideoDuration(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取视频时长失败，错误在"+BilibiliClient.class.getName()+"236行，错误消息："+e.getMessage());
         }
     }
     /**
@@ -248,7 +249,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"252行，错误消息："+e.getMessage());
         }
         return info.getPubdate();
     }
@@ -264,7 +265,7 @@ public class BilibiliClient {
         try {
             return getVideoPubdate(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取发布时间失败，错误在"+BilibiliClient.class.getName()+"268行，错误消息："+e.getMessage());
         }
     }
     /**
@@ -280,7 +281,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"284行，错误消息："+e.getMessage());
         }
         return info.getStat().getView();
     }
@@ -296,7 +297,7 @@ public class BilibiliClient {
         try {
             return getVideoPlayCount(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取播放量失败，错误在"+BilibiliClient.class.getName()+"300行，错误消息："+e.getMessage());
         }
     }
     /**
@@ -312,7 +313,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"316行，错误消息："+e.getMessage());
         }
         return info.getStat().getDanmaku();
     }
@@ -328,7 +329,7 @@ public class BilibiliClient {
         try {
             return getVideoDanmuCount(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("获取弹幕数量失败，错误在"+BilibiliClient.class.getName()+"332行，错误消息："+e.getMessage());
         }
     }
     /**
@@ -344,8 +345,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"348行，错误消息："+e.getMessage());        }
         return info.getStat().getReply();
     }
     /**
@@ -360,8 +360,7 @@ public class BilibiliClient {
         try {
             return getVideoCommentCount(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"363行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取视频收藏数
@@ -376,8 +375,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"378行，错误消息："+e.getMessage());        }
         return info.getStat().getFavorite();
     }
     /**
@@ -392,8 +390,7 @@ public class BilibiliClient {
         try {
             return getVideoFavoriteCount(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"393行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取视频硬币数
@@ -408,8 +405,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"408行，错误消息："+e.getMessage());        }
         return info.getStat().getCoin();
     }
     /**
@@ -424,8 +420,7 @@ public class BilibiliClient {
         try {
             return getVideoCoinCount(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"423行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取视频分享数
@@ -440,8 +435,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"438行，错误消息："+e.getMessage());        }
         return info.getStat().getShare();
     }
     /**
@@ -456,8 +450,7 @@ public class BilibiliClient {
         try {
             return getVideoShareCount(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"453行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取视频当前排名
@@ -472,8 +465,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"468行，错误消息："+e.getMessage());        }
         return info.getStat().getNow_rank();
     }
     /**
@@ -488,8 +480,7 @@ public class BilibiliClient {
         try {
             return getVideoCurrentRank(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"483行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取视频历史最高排名
@@ -504,8 +495,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"498行，错误消息："+e.getMessage());        }
         return info.getStat().getHis_rank();
     }
     /**
@@ -520,8 +510,7 @@ public class BilibiliClient {
         try {
             return getVideoHistoryRank(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"513行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取up主的uid
@@ -536,8 +525,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"528行，错误消息："+e.getMessage());        }
         return info.getOwner().getMid();
     }
     /**
@@ -552,8 +540,7 @@ public class BilibiliClient {
         try {
             return getVideoUpUid(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"543行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取up主的昵称
@@ -568,8 +555,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"558行，错误消息："+e.getMessage());        }
         return info.getOwner().getName();
     }
     /**
@@ -584,8 +570,7 @@ public class BilibiliClient {
         try {
             return getVideoUpName(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"573行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取up主的头像url
@@ -600,8 +585,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"588行，错误消息："+e.getMessage());        }
         return info.getOwner().getFace();
     }
     /**
@@ -616,8 +600,7 @@ public class BilibiliClient {
         try {
             return getVideoUpFace(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"603行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取视频分P数
@@ -632,8 +615,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"618行，错误消息："+e.getMessage());        }
         return info.getPages().size();
     }
     /**
@@ -648,8 +630,7 @@ public class BilibiliClient {
         try {
             return getVideoPartCount(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"633行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取是否为互动视频
@@ -664,8 +645,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"648行，错误消息："+e.getMessage());        }
         return info.getRights().getIs_stein_gate()==1;
     }
     /**
@@ -680,8 +660,7 @@ public class BilibiliClient {
         try {
             return getVideoIsInteraction(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"663行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取合作成员列表
@@ -696,8 +675,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"678行，错误消息："+e.getMessage());        }
         return info.getStaff();
     }
     /**
@@ -712,8 +690,7 @@ public class BilibiliClient {
         try {
             return getStaffList(getVideoInfo(aid).getBvid());
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取合作成员失败，错误在"+BilibiliClient.class.getName()+"693行，错误消息："+e.getMessage());        }
     }
     /**
      * 获取视频分P标题
@@ -729,8 +706,7 @@ public class BilibiliClient {
         try {
             info = getVideoInfo(bvid);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取视频信息失败，错误在"+BilibiliClient.class.getName()+"709行，错误消息："+e.getMessage());        }
         return info.getPages().get(page-1).getPart();
     }
     /**
@@ -746,7 +722,6 @@ public class BilibiliClient {
         try {
             return getVideoPartTitle(getVideoInfo(aid).getBvid(), page);
         } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            throw new RuntimeException("获取分P标题失败，错误在"+BilibiliClient.class.getName()+"725行，错误消息："+e.getMessage());        }
     }
 }

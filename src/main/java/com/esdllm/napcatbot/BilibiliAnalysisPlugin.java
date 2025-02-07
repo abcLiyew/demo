@@ -13,6 +13,7 @@ import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.core.BotPlugin;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -22,6 +23,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+@Slf4j
 @Component
 public class BilibiliAnalysisPlugin extends BotPlugin {
     @Resource
@@ -78,7 +80,8 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
                     VideoInfo info = bilibiliClient.getVideoInfo(bvid);
                     return sendVideoMsg(bot, event, info);
                 } catch (IOException e) {
-                    throw new RuntimeException(e);
+                    log.error(e.getMessage());
+                    return MESSAGE_IGNORE;
                 }
             }
         }
@@ -111,7 +114,8 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
         try {
             card = dynamic.getDynamicDetail(dynamicIdStr);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            log.error(e.getMessage());
+            return MESSAGE_IGNORE;
         }
         return sendDynamicMsg(bot,event,card);
     }
@@ -128,14 +132,16 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
             try {
                 info= bilibiliClient.getVideoInfo(videoIdStr);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                log.error(e.getMessage());
+                return MESSAGE_IGNORE;
             }
         }else {
             Long aid = Long.parseLong(videoIdStr.substring(2));
             try {
                 info= bilibiliClient.getVideoInfo(aid);
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                log.error(e.getMessage());
+                return MESSAGE_IGNORE;
             }
         }
         return sendVideoMsg(bot, event, info);
@@ -225,7 +231,8 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
             return objectMapper.readValue(json, new TypeReference<>() {
             });
         } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
+            log.error("json转Object失败 错误消息{}",e.getMessage());
+            return null;
         }
     }
 }

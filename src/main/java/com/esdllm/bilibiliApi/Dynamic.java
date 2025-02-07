@@ -3,9 +3,7 @@ package com.esdllm.bilibiliApi;
 import com.alibaba.fastjson2.JSON;
 import com.esdllm.exception.BilibiliException;
 import com.esdllm.napcatbot.pojo.bilibili.BilibiliDynamicResp;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.util.EntityUtils;
+import kong.unirest.HttpResponse;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -22,10 +20,9 @@ public class Dynamic {
         BilibiliDynamicResp resp;
         String url = BaseUrl + dynamicId;
 
-        try (CloseableHttpResponse response = ApiBase.getCloseableHttpResponse(url)) {
-            HttpEntity entity = response.getEntity();
-            resp = JSON.parseObject(EntityUtils.toString(entity), BilibiliDynamicResp.class);
-            EntityUtils.consume(entity);
+        try  {
+            HttpResponse<String> response = ApiBase.getCloseableHttpResponse(url);
+            resp = JSON.parseObject(response.getBody(), BilibiliDynamicResp.class);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

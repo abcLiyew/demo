@@ -3,6 +3,7 @@ package com.esdllm.bilibiliApi;
 import com.alibaba.fastjson2.JSON;
 import com.esdllm.exception.BilibiliException;
 import com.esdllm.napcatbot.pojo.bilibili.BilibiliCardResp;
+import kong.unirest.HttpResponse;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -37,18 +38,13 @@ public class CardInfo {
         }
         String url = BaseUrl + bilibiliUid;
 
-        CloseableHttpResponse response = ApiBase.getCloseableHttpResponse(url);
+        HttpResponse<String> response = ApiBase.getCloseableHttpResponse(url);
 
         BilibiliCardResp resp;
         try {
-            HttpEntity entity = response.getEntity();
-            resp = JSON.parseObject(EntityUtils.toString(entity), BilibiliCardResp.class);
-            EntityUtils.consume(entity);
+            resp = JSON.parseObject(response.getBody(), BilibiliCardResp.class);
         }catch (Exception e){
             throw new RuntimeException(e);
-        }
-        finally {
-            response.close();
         }
         if (Objects.isNull(resp.getData())||resp.getCode()!=0){
             throw new BilibiliException("获取卡片信息失败");
@@ -67,7 +63,8 @@ public class CardInfo {
             try {
                 return getBilibiliLiveResp(bilibiliUid).getData().getArchive_count();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("获取卡片信息失败"+e.getMessage());
+
             }
         }
         if (resp.getData().getCard().getMid().equals(bilibiliUid.toString())){
@@ -90,7 +87,9 @@ public class CardInfo {
             try {
                 return getBilibiliLiveResp(bilibiliUid).getData().getCard().getName();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("获取卡片信息失败"+e.getMessage()
+);
+
             }
         }
         if (resp.getData().getCard().getMid().equals(bilibiliUid.toString())){
@@ -112,7 +111,9 @@ public class CardInfo {
             try {
                 return getBilibiliLiveResp(bilibiliUid).getData().getCard().getFace();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("获取卡片信息失败"+e.getMessage()
+);
+
             }
         }
         if (resp.getData().getCard().getMid().equals(bilibiliUid.toString())){
@@ -134,7 +135,9 @@ public class CardInfo {
             try {
                 return getBilibiliLiveResp(bilibiliUid).getData().getCard().getLevel_info().getCurrent_level();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("获取卡片信息失败"+e.getMessage()
+);
+
             }
         }
         if (resp.getData().getCard().getMid().equals(bilibiliUid.toString())){
@@ -156,7 +159,9 @@ public class CardInfo {
             try {
                 return getBilibiliLiveResp(bilibiliUid).getData().getCard().getSign();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                throw new RuntimeException("获取卡片信息失败"+e.getMessage()
+);
+
             }
         }
         if (resp.getData().getCard().getMid().equals(bilibiliUid.toString())){

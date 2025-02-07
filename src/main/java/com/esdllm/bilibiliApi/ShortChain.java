@@ -33,7 +33,7 @@ public class ShortChain {
         try {
             response = ApiBase.getHttpResponseNotRedirect(shortChainUrl);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("短链解析失败"+e.getMessage());
         }
         String location;
         try {
@@ -139,7 +139,7 @@ public class ShortChain {
                  return new BilibiliClient().getVideoInfo(av);
             }
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("短链解析失败"+e.getMessage());
         }
     }
     public LiveRoom getLiveRoom(){
@@ -157,7 +157,7 @@ public class ShortChain {
         try {
             card = new Dynamic().getDynamicDetail(shotChainInfo.getChainId());
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("短链解析失败"+e.getMessage());
         }
         return card;
     }
