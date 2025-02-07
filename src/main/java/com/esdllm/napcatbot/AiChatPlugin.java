@@ -30,15 +30,16 @@ public class AiChatPlugin {
     @Value("${myConfig.bot.aiChat.token}")
     private String token;
     private final String modelId = ModelEnum.DeepSeek_R1_Official.getName();
+    private final String standbyModelId = ModelEnum.DeepSeek_V3_Official.getName();
     @Value("${myConfig.bot.aiChat.base_url}")
     private String baseUrl;
     @Value("${myConfig.bot.aiChat.max_tokens}")
     private Integer maxTokens;
 
+    private String reasoningContent = null;
+
     @Resource
     private AiChatDeepSeekService aiChatDeepSeekService;
-    @Resource
-    private DeepSeekResp deepSeekResp;
 
     // 初始化消息列表
     private final List<DeepSeekReq.Message> chatMessages = new ArrayList<>();
@@ -90,22 +91,30 @@ public class AiChatPlugin {
         chatMessages.add(message);
 
         DeepSeekResp resp;
+        String sendMsg = "";
         try {
             resp = aiChatDeepSeekService.getResp(baseUrl, token, modelId, chatMessages, maxTokens);
         }catch (Exception e){
             log.error(e.getMessage());
-            bot.sendMsg(event,"这是Deepseek服务器没给回答，不关我的事(｡･ω･｡)",false);
-            chatMessages.remove(chatMessages.size() - 1);
-            return;
+            try {
+                sendMsg = "当前R1不可用，以下为V3的回答：\n";
+                resp = aiChatDeepSeekService.getResp(baseUrl, token, standbyModelId, chatMessages, maxTokens);
+            } catch (Exception ex) {
+                log.error("V3也不可用。{}", ex.getMessage());
+                sendMsg = "deepseek-R1和V3的api都寄了，稍后再试试吧";
+                bot.sendMsg(event,sendMsg,false);
+                return;
+            }
         }
         // 处理ai返回的结果
-        String sendMsg;
+
         for (DeepSeekResp.Choices choice : resp.getChoices()) {
             if (choice.getMessage().getRole().equals("assistant")) {
                 String text = choice.getMessage().getContent();
-                sendMsg = text.replaceAll("[#|*]","");
+                sendMsg += text.replaceAll("[#|*]","");
                 sendMsg+="\n\n\n内容由AI生成，可能存在不实信息，请注意甄别";
                 DeepSeekReq.Message choiceMessage = choice.getMessage();
+                reasoningContent = choiceMessage.getReasoning_content();
                 choiceMessage.setReasoning_content(null);
                 chatMessages.add(choiceMessage);
                 while (chatMessages.size() > 20) { // 系统消息+10轮对话
@@ -124,12 +133,12 @@ public class AiChatPlugin {
             bot.sendMsg(event,"当前模型不支持获取思考过程。",false);
             return;
         }
-        String reasoningContent = chatMessages.get(chatMessages.size() - 1).getReasoning_content();
-        if (!chatMessages.get(chatMessages.size()-1).getRole().equals("assistant")&& chatMessages.size()>2){
-            reasoningContent = chatMessages.get(chatMessages.size() - 2).getReasoning_content();
+        if (chatMessages.size() <3){
+            bot.sendMsg(event,"消息列表是空的。",false);
+            return;
         }
         if (Objects.isNull(reasoningContent)){
-            bot.sendMsg(event,"消息列表是空的。",false);
+            bot.sendMsg(event,"本次回答的思考过程是空。",false);
         }else {
             bot.sendMsg(event,reasoningContent,false);
         }
@@ -138,6 +147,7 @@ public class AiChatPlugin {
     @MessageHandlerFilter(cmd = "(清空消息列表.*)$|(开启新对话.*)$",at = AtEnum.NEED)
     public void onNewChat(Bot bot, AnyMessageEvent event){
         chatMessages.clear();
+        reasoningContent = null;
         setSystemMessage();
         bot.sendMsg(event,"已清空消息列表。",false);
     }

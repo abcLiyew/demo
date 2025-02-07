@@ -250,8 +250,15 @@ public class SignPlugin extends BotPlugin {
         }else {
             careerLuck = "事业成功";
         }
+        String fortuneDesc = getDesc(fortune, fortune1, fortune2);
+
+        return fortuneDesc + "，"+finances + "，"+peachBlossomLuck + "，"+careerLuck;
+
+    }
+
+    private static String getDesc(int fortune, int fortune1, int fortune2) {
         String fortuneDesc;
-        int fortuneDescNum = (fortune+fortune1+fortune2)/3;
+        int fortuneDescNum = (fortune + fortune1 + fortune2)/3;
         if (fortuneDescNum < 10){
             fortuneDesc = "凶";
         }else if(fortuneDescNum < 20){
@@ -273,9 +280,7 @@ public class SignPlugin extends BotPlugin {
         }else {
             fortuneDesc = "超大吉";
         }
-
-        return fortuneDesc + "，"+finances + "，"+peachBlossomLuck + "，"+careerLuck;
-
+        return fortuneDesc;
     }
 
     private SignLevel getSignLevel(Double empirical) {
