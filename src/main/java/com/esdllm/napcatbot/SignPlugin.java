@@ -194,13 +194,13 @@ public class SignPlugin extends BotPlugin {
             random2.nextInt(200);
         }
         if(fortune > 100){
-            fortune =(fortune-75)/3+75;
+            fortune =(fortune-75)/5+75;
         }
         if(fortune1 > 100){
-            fortune1 =(fortune1-75)/3+75;
+            fortune1 =(fortune1-75)/5+75;
         }
         if(fortune2 > 100){
-            fortune2 =(fortune2-75)/3+75;
+            fortune2 =(fortune2-75)/5+75;
         }
         String sendMsg = MsgUtils.builder().at(event.getUserId()).text(" 猫猫测运中╰(*°▽°*)╯\n...您今天的运势为：" +
                 "\n财运："+fortune+"\n桃花运：" +fortune1+"\n事业运："+fortune2+"\n点评："
