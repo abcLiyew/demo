@@ -122,11 +122,20 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
 
     private int onVideoUrl(Bot bot, AnyMessageEvent event, String url) {
         String[] urlArr = url.split("/");
-        int indexOf = urlArr[urlArr.length - 1].indexOf("?");
-        if (indexOf<=0){
-            indexOf =urlArr[urlArr.length-1].length();
+        String videoIdStr = null;
+        for (String urlSplit : urlArr) {
+            if (urlSplit.startsWith("BV")||urlSplit.startsWith("av")||urlSplit.startsWith("AV")){
+                int indexOf = urlSplit.indexOf("?");
+                if (indexOf<=0){
+                    indexOf =urlSplit.length();
+                }
+                videoIdStr = urlSplit.substring(0, indexOf);
+                break;
+            }
         }
-        String videoIdStr = urlArr[urlArr.length-1].substring(0, indexOf);
+        if (videoIdStr==null){
+            return MESSAGE_IGNORE;
+        }
         VideoInfo info;
         if (videoIdStr.startsWith("BV")){
             try {

@@ -7,7 +7,9 @@ import com.esdllm.napcatbot.pojo.aichat.DeepSeekReq;
 import com.esdllm.napcatbot.pojo.aichat.DeepSeekResp;
 import com.mikuac.shiro.annotation.AnyMessageHandler;
 import com.mikuac.shiro.annotation.MessageHandlerFilter;
+import com.mikuac.shiro.annotation.common.Order;
 import com.mikuac.shiro.annotation.common.Shiro;
+import com.mikuac.shiro.common.utils.MsgUtils;
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.enums.AtEnum;
@@ -54,8 +56,8 @@ public class AiChatPlugin {
     @PostConstruct
     public void setSystemMessage() {
         ChatMessageUtils system = ChatMessageUtils.builder().role("system")
-                .text("不要使用markdown格式，用户当前都是哔哩哔哩一个女友势虚拟主播小雨绒Candy的粉丝，你应该喊她小雨绒" +
-                        "这里是粉丝群,你是群里的一位群友，聊天过程中尽量不要提起小雨绒，除非有人问" +
+                .text("不要使用markdown格式，用户当前都是哔哩哔哩一个女友势虚拟主播的粉丝" +
+                        "这里是粉丝群,你是群里的一位群友，聊天过程中尽量不要提起主播，除非有人问" +
                         "不要欢迎，也不用提到她的直播，就正常的聊天互动即可。注意不要喊用户主人");
         chatMessages.add(system.build());
     }
@@ -66,12 +68,15 @@ public class AiChatPlugin {
      * @param  event 消息事件
      */
     @AnyMessageHandler
-    @MessageHandlerFilter(cmd = "((?i)^(ai:|ai：).*)|(.*/)$",at = AtEnum.NEED)
+    @MessageHandlerFilter(at = AtEnum.NEED,groups={679079419L})
     public void onReceiveMessage(Bot bot, AnyMessageEvent event) {
         // 过滤消息
         String msg = event.getMessage();
         msg = msg.replaceAll("\\[CQ:[^]]*]","");
         msg = msg.trim();
+        if (!msg.toLowerCase().startsWith("ai:")&& !msg.startsWith("ai：")&&!msg.endsWith("/")){
+            return;
+        }
         if (msg.startsWith("ai")){
             msg = msg.substring(3);
         }
@@ -89,7 +94,21 @@ public class AiChatPlugin {
                 .text(msg)
                 .build();
         chatMessages.add(message);
-
+        //处理消息列表，如果有连续两条或以上同一角色消息，则合并为一条消息
+        for (int i = chatMessages.size() - 1; i >= 0; i--){
+            if(i<2){
+                break;
+            }
+            if (chatMessages.get(i).getRole().equals(chatMessages.get(i-1).getRole())){
+                String content = chatMessages.get(i).getContent();
+                content += "\n" + chatMessages.get(i-1).getContent();
+                chatMessages.get(i).setContent(content);
+                chatMessages.remove(i-1);
+            }
+        }
+        if (!chatMessages.get(1).getRole().equals("user")){
+            chatMessages.remove(1);
+        }
         DeepSeekResp resp;
         String sendMsg = "";
         try {
@@ -117,9 +136,6 @@ public class AiChatPlugin {
                 reasoningContent = choiceMessage.getReasoning_content();
                 choiceMessage.setReasoning_content(null);
                 chatMessages.add(choiceMessage);
-                while (chatMessages.size() > 20) { // 系统消息+10轮对话
-                    chatMessages.remove(1); // 始终保留索引0的系统消息
-                }
                 bot.sendMsg(event,sendMsg,false);
             }
         }
@@ -144,7 +160,7 @@ public class AiChatPlugin {
         }
     }
     @AnyMessageHandler
-    @MessageHandlerFilter(cmd = "(清空消息列表.*)$|(开启新对话.*)$",at = AtEnum.NEED)
+    @MessageHandlerFilter(cmd = "(清空消息列表.*)$|(开启新对话.*)$",at = AtEnum.NEED,senders = 1825330295)
     public void onNewChat(Bot bot, AnyMessageEvent event){
         chatMessages.clear();
         reasoningContent = null;
@@ -152,9 +168,64 @@ public class AiChatPlugin {
         bot.sendMsg(event,"已清空消息列表。",false);
     }
 
-    @Scheduled(cron = "0 0/30 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void clearChatList(){
         this.clear();
         this.setSystemMessage();
+    }
+    @AnyMessageHandler
+    @MessageHandlerFilter(cmd = "(获取消息列表.*)$",at = AtEnum.NEED,senders = 1825330295)
+    public void getMessageList(Bot bot, AnyMessageEvent event){
+        StringBuilder sengMsg = new StringBuilder();
+        for (DeepSeekReq.Message message : chatMessages) {
+            sengMsg.append(message.getRole()).append("：").append(message.getContent()).append("\n");
+        }
+        bot.sendMsg(event,sengMsg.toString(),false);
+    }
+    @AnyMessageHandler
+    @MessageHandlerFilter(cmd = ".*入机.*|.*人机.*",at = AtEnum.OFF)
+    @Order(1)
+    public void deleteMessage(Bot bot, AnyMessageEvent event){
+        String msg = event.getMessage();
+        msg = msg.replaceAll("\\[CQ:[^]]*]","");
+        msg = msg.trim();
+        msg = msg.trim();
+        long myQq = 1825330295L;
+        if (msg.equals("我是入机")||event.getMessage().equals("我是人机")){
+            if (event.getUserId().equals(myQq)){
+                String sengMsg = MsgUtils.builder().at(myQq).text(
+                        " 是的，你是入机"
+                ).build();
+                bot.sendMsg(event,sengMsg,false);
+                return;
+            }else {
+                String sengMsg = MsgUtils.builder().text("你不是入机，")
+                        .at(myQq)
+                        .text(" 才是入机")
+                        .build();
+                bot.sendMsg(event,sengMsg,false);
+                return;
+            }
+        }
+        if (msg.equals("你是入机")||event.getMessage().equals("你是人机")){
+            if (event.getUserId().equals(myQq)){
+                String sengMsg = MsgUtils.builder().at(myQq).text(" 你才是入机").build();
+                bot.sendMsg(event,sengMsg,false);
+                return;
+            }
+            String sengMsg = MsgUtils.builder().text("我不是入机，")
+                    .at(myQq)
+                    .text(" 才是入机")
+                    .build();
+            bot.sendMsg(event,sengMsg,false);
+            return;
+        }
+        if (event.getUserId().equals(myQq)){
+            String sendMsg = MsgUtils.builder().text("你是入机").at(myQq).build();
+            bot.sendMsg(event,sendMsg,false);
+        }else {
+            String sendMsg = MsgUtils.builder().text("我不是入机，入机是这个").at(myQq).build();
+            bot.sendMsg(event,sendMsg,false);
+        }
     }
 }

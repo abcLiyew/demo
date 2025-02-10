@@ -12,12 +12,14 @@ import com.mikuac.shiro.common.utils.MsgUtils;
 import com.mikuac.shiro.core.Bot;
 import com.mikuac.shiro.core.BotContainer;
 import com.mikuac.shiro.core.BotPlugin;
+import com.mikuac.shiro.dto.action.common.ActionData;
+import com.mikuac.shiro.dto.action.response.GroupMemberInfoResp;
 import com.mikuac.shiro.dto.event.message.AnyMessageEvent;
 import com.mikuac.shiro.enums.AtEnum;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -420,14 +422,21 @@ public class BilibiliPushPlugin extends BotPlugin {
                         log.info("解析开播时间失败");
                     }
                     pushInfo.setLiveTime(liveTime);
-                    if (pushInfo.getAtAll() == 1){
-                    sendMsg = MsgUtils.builder().atAll()
-                            .text(" "+cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 开播了"+
-                                    "\n标题："+liveRoom.getLiveTitle(pushInfo.getRoomId())+"\n"+
-                                    "分区："+liveRoom.getLiveArea(pushInfo.getRoomId())+"\n"+
-                                    "地址："+liveRoom.getLiveUrl(pushInfo.getRoomId())+"\n"+
-                                    "[CQ:image,file="+liveRoom.getImageUrl(pushInfo.getRoomId())+"]")
-                            .build();
+                    Long login = bot.getLoginInfo().getData().getUserId();
+                    String role=null;
+                    if (!Objects.isNull(pushInfo.getGroupId())) {
+                        ActionData<GroupMemberInfoResp> memberInfo = bot.getGroupMemberInfo(pushInfo.getGroupId(), login, false);
+                        role = memberInfo.getData().getRole();
+                    }
+                    if (!StringUtils.isEmpty(role)&&pushInfo.getAtAll() == 1&&(role.equals("admin")||
+                            role.equals("owner"))){
+                        sendMsg = MsgUtils.builder().atAll()
+                                .text(" "+cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 开播了"+
+                                        "\n标题："+liveRoom.getLiveTitle(pushInfo.getRoomId())+"\n"+
+                                        "分区："+liveRoom.getLiveArea(pushInfo.getRoomId())+"\n"+
+                                        "地址："+liveRoom.getLiveUrl(pushInfo.getRoomId())+"\n"+
+                                        "[CQ:image,file="+liveRoom.getImageUrl(pushInfo.getRoomId())+"]")
+                                .build();
                     }else if (atListStr != null && !atListStr.isEmpty()){
                         String[] atList = atListStr.split(",");
                         Long[] atListLong = new Long[atList.length];
@@ -495,6 +504,9 @@ public class BilibiliPushPlugin extends BotPlugin {
     }
 
     private void liveAtMe(Bot bot,AnyMessageEvent event,Long roomId){
+        Long login = bot.getLoginInfo().getData().getUserId();
+        ActionData<GroupMemberInfoResp> memberInfo = bot.getGroupMemberInfo(event.getGroupId(), login, false);
+        String role = memberInfo.getData().getRole();
         LambdaQueryWrapper<PushInfo> queryWrapper = new LambdaQueryWrapper<>();
         if (Objects.isNull(event.getGroupId())){
             queryWrapper.eq(PushInfo::getQqUid,event.getUserId());
@@ -510,10 +522,10 @@ public class BilibiliPushPlugin extends BotPlugin {
         if (pushInfoList.size()==1){
             if (roomId !=null&& !roomId.equals(pushInfoList.get(0).getRoomId())){
                 bot.sendMsg(event,MsgUtils.builder().at(event.getUserId())
-                        .text("你没有订阅该直播间").build(),false);
+                        .text(" 你没有订阅该直播间").build(),false);
                 return ;
             }
-            if (pushInfoList.get(0).getAtAll()==1){
+            if (pushInfoList.get(0).getAtAll()==1&&(role.equals("owner")||role.equals("admin"))){
                 String sendMsg = MsgUtils.builder().at(event.getUserId()).
                         text(" 开播提醒已经@全体成员了！").build();
                 bot.sendMsg(event,sendMsg,false);
@@ -549,7 +561,7 @@ public class BilibiliPushPlugin extends BotPlugin {
         }
         for (PushInfo pushInfo : pushInfoList) {
             if (roomId.equals(pushInfo.getRoomId())){
-                if (pushInfo.getAtAll()==1){
+                if (pushInfo.getAtAll()==1&&(role.equals("owner")||role.equals("admin"))){
                     String sendMsg = MsgUtils.builder().at(event.getUserId()).
                             text(" 开播提醒已经@全体成员了！").build();
                     bot.sendMsg(event,sendMsg,false);
