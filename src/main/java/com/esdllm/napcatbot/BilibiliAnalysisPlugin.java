@@ -157,13 +157,18 @@ public class BilibiliAnalysisPlugin extends BotPlugin {
     }
 
     private int sendVideoMsg(Bot bot, AnyMessageEvent event, VideoInfo info) {
+        long view = info.getStat().getView();
+        String viewStr = String.valueOf(view);
+        if (view > 10000){
+            viewStr = String.format("%.2f万", (double) view / 10000);
+        }
         String msg = MsgUtils.builder().img(info.getPic()).text(
                 "av"+info.getAid()+"\n"+
                         info.getBvid()+"\n"+
                         "标题："+info.getTitle()+"\n"+
                         "简介："+info.getDesc()+"\n"+
                         "上传时间："+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(info.getPubdate()*1000)+"\n"+
-                        "播放量："+info.getStat().getView()+
+                        "播放量："+viewStr+
                         "，弹幕："+info.getStat().getDanmaku()+"\n评论："+info.getStat().getReply() +
                         "，收藏："+info.getStat().getFavorite() +
                         "\n点赞："+info.getStat().getLike()+"，投币："+info.getStat().getCoin()+

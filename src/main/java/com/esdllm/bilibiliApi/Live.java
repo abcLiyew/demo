@@ -29,10 +29,10 @@ public class Live {
         try {
             resp = getBilibiliLiveResp(roomId);
         } catch (IOException e) {
-            throw new RuntimeException("获取直播间信息失败。"+e.getMessage());
+            throw new RuntimeException("获取直播间信息失败。"+e.getMessage()+"\n房间号："+roomId);
         }
         if (Objects.isNull(resp.getData())){
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
         }
         return resp.getData();
     }
@@ -50,10 +50,10 @@ public class Live {
         try {
             resp = JSON.parseObject(response.getBody(), BilibiliLiveResp.class);
         }catch (Exception e){
-            throw new BilibiliException("获取直播消息失败"+response.toString());
+            throw new BilibiliException("获取直播消息失败"+ response.getBody()+"\n房间号："+roomId);
         }
         if (Objects.isNull(resp.getData())||resp.getCode()!=0){
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
         }
         return resp;
     }
@@ -67,7 +67,7 @@ public class Live {
     public int getLiveStatus(Long room_id) throws IOException {
         BilibiliLiveResp resp = getBilibiliLiveResp(room_id);
         if (Objects.isNull(resp.getData())){
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+room_id);
         }
         return resp.getData().getLive_status();
     }
@@ -90,7 +90,7 @@ public class Live {
     public String getLiveTitle(Long room_id) throws IOException {
         BilibiliLiveResp resp = getBilibiliLiveResp(room_id);
         if (Objects.isNull(resp.getData())){
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+room_id);
         }
         return resp.getData().getTitle();
     }
@@ -103,7 +103,7 @@ public class Live {
     public String getImageUrl(Long room_id) throws IOException {
         BilibiliLiveResp resp = getBilibiliLiveResp(room_id);
         if (Objects.isNull(resp.getData().getUser_cover())){
-            throw new BilibiliException("获取封面失败");
+            throw new BilibiliException("获取封面失败"+"\n房间号："+room_id);
         }
         return resp.getData().getUser_cover();
     }
@@ -117,7 +117,7 @@ public class Live {
         try {
             resp = getBilibiliLiveResp(roomId);
         } catch (IOException e) {
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
 
 
         }
@@ -133,7 +133,7 @@ public class Live {
         try {
             bilibiliLiveResp = getBilibiliLiveResp(roomId);
         } catch (IOException e) {
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
 
 
         }
@@ -149,7 +149,7 @@ public class Live {
         try {
             bilibiliLiveResp = getBilibiliLiveResp(roomId);
         } catch (IOException e) {
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
 
 
         }
@@ -165,7 +165,7 @@ public class Live {
         try {
             bilibiliLiveResp = getBilibiliLiveResp(roomId);
         } catch (IOException e) {
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
 
 
         }
@@ -181,7 +181,7 @@ public class Live {
         try {
             bilibiliLiveResp = getBilibiliLiveResp(roomId);
         } catch (IOException e) {
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
 
 
         }
@@ -197,7 +197,7 @@ public class Live {
         try {
             bilibiliLiveResp = getBilibiliLiveResp(roomId);
         } catch (IOException e) {
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
 
 
         }
@@ -213,7 +213,7 @@ public class Live {
         try {
             bilibiliLiveResp = getBilibiliLiveResp(roomId);
         } catch (IOException e) {
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
 
 
         }
@@ -229,7 +229,7 @@ public class Live {
         try {
             bilibiliLiveResp = getBilibiliLiveResp(roomId);
         } catch (IOException e) {
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
 
 
         }
@@ -245,7 +245,7 @@ public class Live {
         try {
             bilibiliLiveResp = getBilibiliLiveResp(roomId); // 调用方法获取BilibiliLiveResp对象
         } catch (IOException e) {
-            throw new BilibiliException("获取直播间信息失败");
+            throw new BilibiliException("获取直播间信息失败"+"\n房间号："+roomId);
 
 
         }

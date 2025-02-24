@@ -143,7 +143,7 @@ public class AiChatPlugin {
 
     }
     @AnyMessageHandler
-    @MessageHandlerFilter(cmd = "(获取思考过程.*)$",at = AtEnum.NEED)
+    @MessageHandlerFilter(cmd = "(获取思考过程.*)$",at = AtEnum.NEED,senders = 1825330295)
     public void onGetReasoningMessage(Bot bot, AnyMessageEvent event) {
         if (!modelId.equals(ModelEnum.DeepSeek_R1.getName())&& !modelId.equals(ModelEnum.DeepSeek_R1_Official.getName())){
             bot.sendMsg(event,"当前模型不支持获取思考过程。",false);
@@ -183,7 +183,7 @@ public class AiChatPlugin {
         bot.sendMsg(event,sengMsg.toString(),false);
     }
     @AnyMessageHandler
-    @MessageHandlerFilter(cmd = ".*入机.*|.*人机.*",at = AtEnum.OFF)
+    @MessageHandlerFilter(cmd = ".*入机.*|.*人机.*",at = AtEnum.OFF,groups = {679079419L})
     @Order(1)
     public void deleteMessage(Bot bot, AnyMessageEvent event){
         String msg = event.getMessage();

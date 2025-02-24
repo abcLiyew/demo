@@ -434,8 +434,8 @@ public class BilibiliPushPlugin extends BotPlugin {
                                 .text(" "+cardInfo.getUserName(liveRoom.getUid(pushInfo.getRoomId()))+" 开播了"+
                                         "\n标题："+liveRoom.getLiveTitle(pushInfo.getRoomId())+"\n"+
                                         "分区："+liveRoom.getLiveArea(pushInfo.getRoomId())+"\n"+
-                                        "地址："+liveRoom.getLiveUrl(pushInfo.getRoomId())+"\n"+
-                                        "[CQ:image,file="+liveRoom.getImageUrl(pushInfo.getRoomId())+"]")
+                                        "地址："+liveRoom.getLiveUrl(pushInfo.getRoomId())+"\n")
+                                .img(liveRoom.getImageUrl(pushInfo.getRoomId()))
                                 .build();
                     }else if (atListStr != null && !atListStr.isEmpty()){
                         String[] atList = atListStr.split(",");
